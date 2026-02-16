@@ -1,7 +1,7 @@
 const { useState, useEffect, useRef } = React;
 
 // API Configuration - Replace with your actual backend URL
-const API_URL = 'https://your-backend-url.com/api'; // CHANGE THIS!
+const API_URL = 'https://clicker-game-production.up.railway.app/api';
 
 // Lucide React icons as simple components
 const Zap = () => <span>⚡</span>;
