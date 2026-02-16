@@ -1,9 +1,9 @@
-const { useState, useEffect, useRef } = React;
+const { useState, useEffect, useRef, useCallback, useMemo } = React;
 
-// API Configuration - Replace with your actual backend URL
+// API Configuration
 const API_URL = 'https://clicker-game-production.up.railway.app/api';
 
-// Lucide React icons as simple components
+// Lucide React icons
 const Zap = () => <span>⚡</span>;
 const Trophy = () => <span>🏆</span>;
 const Crown = () => <span>👑</span>;
@@ -32,46 +32,48 @@ const Palette = () => <span>🎨</span>;
 const Save = () => <span>💾</span>;
 const Upload = () => <span>📤</span>;
 const Download = () => <span>📥</span>;
+const Skull = () => <span>💀</span>;
+const Lightning = () => <span>⚡</span>;
 
-// Available cosmetics
+// Available cosmetics (HARDER TO GET)
 const COSMETICS = {
   cookies: [
-    { id: 'default', name: 'Classic Cookie', emoji: '🍪', rarity: 'common' },
-    { id: 'golden', name: 'Golden Cookie', emoji: '🥇', rarity: 'rare' },
-    { id: 'rainbow', name: 'Rainbow Cookie', emoji: '🌈', rarity: 'epic' },
-    { id: 'diamond', name: 'Diamond Cookie', emoji: '💎', rarity: 'legendary' },
-    { id: 'fire', name: 'Fire Cookie', emoji: '🔥', rarity: 'epic' },
-    { id: 'ice', name: 'Ice Cookie', emoji: '❄️', rarity: 'epic' },
-    { id: 'cosmic', name: 'Cosmic Cookie', emoji: '🌌', rarity: 'legendary' },
-    { id: 'heart', name: 'Heart Cookie', emoji: '❤️', rarity: 'rare' },
-    { id: 'star', name: 'Star Cookie', emoji: '⭐', rarity: 'rare' },
-    { id: 'skull', name: 'Skull Cookie', emoji: '💀', rarity: 'epic' },
-    { id: 'alien', name: 'Alien Cookie', emoji: '👽', rarity: 'legendary' },
-    { id: 'robot', name: 'Robot Cookie', emoji: '🤖', rarity: 'legendary' },
+    { id: 'default', name: 'Classic Cookie', emoji: '🍪', rarity: 'common', cost: 0 },
+    { id: 'golden', name: 'Golden Cookie', emoji: '🥇', rarity: 'rare', cost: 50000 },
+    { id: 'rainbow', name: 'Rainbow Cookie', emoji: '🌈', rarity: 'epic', cost: 500000 },
+    { id: 'diamond', name: 'Diamond Cookie', emoji: '💎', rarity: 'legendary', cost: 5000000 },
+    { id: 'fire', name: 'Fire Cookie', emoji: '🔥', rarity: 'epic', cost: 1000000 },
+    { id: 'ice', name: 'Ice Cookie', emoji: '❄️', rarity: 'epic', cost: 1000000 },
+    { id: 'cosmic', name: 'Cosmic Cookie', emoji: '🌌', rarity: 'legendary', cost: 10000000 },
+    { id: 'heart', name: 'Heart Cookie', emoji: '❤️', rarity: 'rare', cost: 100000 },
+    { id: 'star', name: 'Star Cookie', emoji: '⭐', rarity: 'rare', cost: 75000 },
+    { id: 'skull', name: 'Skull Cookie', emoji: '💀', rarity: 'epic', cost: 2000000 },
+    { id: 'alien', name: 'Alien Cookie', emoji: '👽', rarity: 'legendary', cost: 15000000 },
+    { id: 'robot', name: 'Robot Cookie', emoji: '🤖', rarity: 'legendary', cost: 20000000 },
   ],
   themes: [
-    { id: 'default', name: 'Cyber Purple', gradient: 'from-purple-900/20 via-black to-cyan-900/20', rarity: 'common' },
-    { id: 'crimson', name: 'Crimson Flame', gradient: 'from-red-900/20 via-black to-orange-900/20', rarity: 'rare' },
-    { id: 'emerald', name: 'Emerald Dream', gradient: 'from-green-900/20 via-black to-teal-900/20', rarity: 'rare' },
-    { id: 'royal', name: 'Royal Gold', gradient: 'from-yellow-900/20 via-black to-amber-900/20', rarity: 'epic' },
-    { id: 'ocean', name: 'Deep Ocean', gradient: 'from-blue-900/20 via-black to-cyan-900/20', rarity: 'epic' },
-    { id: 'sunset', name: 'Sunset Blaze', gradient: 'from-orange-900/20 via-pink-900/20 to-purple-900/20', rarity: 'legendary' },
-    { id: 'matrix', name: 'Matrix Code', gradient: 'from-green-500/10 via-black to-green-900/10', rarity: 'legendary' },
-    { id: 'void', name: 'Void Space', gradient: 'from-black via-purple-950/20 to-black', rarity: 'legendary' },
+    { id: 'default', name: 'Cyber Purple', gradient: 'from-purple-900/20 via-black to-cyan-900/20', rarity: 'common', cost: 0 },
+    { id: 'crimson', name: 'Crimson Flame', gradient: 'from-red-900/20 via-black to-orange-900/20', rarity: 'rare', cost: 250000 },
+    { id: 'emerald', name: 'Emerald Dream', gradient: 'from-green-900/20 via-black to-teal-900/20', rarity: 'rare', cost: 250000 },
+    { id: 'royal', name: 'Royal Gold', gradient: 'from-yellow-900/20 via-black to-amber-900/20', rarity: 'epic', cost: 1500000 },
+    { id: 'ocean', name: 'Deep Ocean', gradient: 'from-blue-900/20 via-black to-cyan-900/20', rarity: 'epic', cost: 1500000 },
+    { id: 'sunset', name: 'Sunset Blaze', gradient: 'from-orange-900/20 via-pink-900/20 to-purple-900/20', rarity: 'legendary', cost: 8000000 },
+    { id: 'matrix', name: 'Matrix Code', gradient: 'from-green-500/10 via-black to-green-900/10', rarity: 'legendary', cost: 12000000 },
+    { id: 'void', name: 'Void Space', gradient: 'from-black via-purple-950/20 to-black', rarity: 'legendary', cost: 25000000 },
   ],
   effects: [
-    { id: 'none', name: 'No Effect', rarity: 'common' },
-    { id: 'sparkles', name: 'Sparkle Trail', rarity: 'rare' },
-    { id: 'flames', name: 'Flame Aura', rarity: 'epic' },
-    { id: 'lightning', name: 'Lightning Strikes', rarity: 'legendary' },
-    { id: 'rainbow', name: 'Rainbow Pulse', rarity: 'legendary' },
+    { id: 'none', name: 'No Effect', rarity: 'common', cost: 0 },
+    { id: 'sparkles', name: 'Sparkle Trail', rarity: 'rare', cost: 500000 },
+    { id: 'flames', name: 'Flame Aura', rarity: 'epic', cost: 2500000 },
+    { id: 'lightning', name: 'Lightning Strikes', rarity: 'legendary', cost: 10000000 },
+    { id: 'rainbow', name: 'Rainbow Pulse', rarity: 'legendary', cost: 15000000 },
   ],
   titles: [
-    { id: 'none', name: 'No Title', display: '', rarity: 'common' },
-    { id: 'baker', name: 'Master Baker', display: '🍞 Master Baker', rarity: 'rare' },
-    { id: 'legend', name: 'Cookie Legend', display: '⚡ Cookie Legend', rarity: 'epic' },
-    { id: 'emperor', name: 'Cookie Emperor', display: '👑 Cookie Emperor', rarity: 'legendary' },
-    { id: 'god', name: 'Cookie God', display: '✨ Cookie God', rarity: 'legendary' },
+    { id: 'none', name: 'No Title', display: '', rarity: 'common', cost: 0 },
+    { id: 'baker', name: 'Master Baker', display: '🍞 Master Baker', rarity: 'rare', cost: 100000 },
+    { id: 'legend', name: 'Cookie Legend', display: '⚡ Cookie Legend', rarity: 'epic', cost: 3000000 },
+    { id: 'emperor', name: 'Cookie Emperor', display: '👑 Cookie Emperor', rarity: 'legendary', cost: 25000000 },
+    { id: 'god', name: 'Cookie God', display: '✨ Cookie God', rarity: 'legendary', cost: 100000000 },
   ]
 };
 
@@ -87,15 +89,25 @@ function UltimateCookieEmpire() {
   const [prestige, setPrestige] = useState(0);
   const [prestigeTokens, setPrestigeTokens] = useState(0);
   
+  // NEW: Difficulty modifiers
+  const [difficulty, setDifficulty] = useState(1);
+  const [criticalFailChance, setCriticalFailChance] = useState(0);
+  
   // Owner dashboard state
   const [isOwner, setIsOwner] = useState(false);
   const [ownerPanelOpen, setOwnerPanelOpen] = useState(false);
-  const [ownerTab, setOwnerTab] = useState('stats'); // stats, cosmetics, players, advanced
+  const [ownerTab, setOwnerTab] = useState('stats');
   const OWNER_CODE = 'EMPIRE2025';
   
-  // Player identity
-  const [playerName, setPlayerName] = useState('');
-  const [showNameInput, setShowNameInput] = useState(true);
+  // Player identity - FIXED: Username persistence
+  const [playerName, setPlayerName] = useState(() => {
+    const saved = localStorage.getItem('cookieEmpirePlayerName');
+    return saved || '';
+  });
+  const [showNameInput, setShowNameInput] = useState(() => {
+    const saved = localStorage.getItem('cookieEmpirePlayerName');
+    return !saved;
+  });
   const [playerId] = useState(() => {
     const stored = localStorage.getItem('cookieEmpirePlayerId');
     if (stored) return stored;
@@ -118,6 +130,7 @@ function UltimateCookieEmpire() {
     title: 'none'
   });
   const [showCosmeticsMenu, setShowCosmeticsMenu] = useState(false);
+  const [showCosmeticsShop, setShowCosmeticsShop] = useState(false);
   
   // Leaderboard
   const [leaderboard, setLeaderboard] = useState([]);
@@ -131,67 +144,71 @@ function UltimateCookieEmpire() {
   
   // Auto-save state
   const [lastSaved, setLastSaved] = useState(Date.now());
-  const [saveStatus, setSaveStatus] = useState('saved'); // saved, saving, error
+  const [saveStatus, setSaveStatus] = useState('saved');
   
-  // Achievements
+  // Achievements - MUCH HARDER
   const [achievements, setAchievements] = useState([
-    { id: 'first_click', name: 'First Cookie', desc: 'Click your first cookie', unlocked: false, icon: '🍪' },
-    { id: 'hundred_cookies', name: 'Cookie Collector', desc: 'Earn 100 cookies', unlocked: false, icon: '💰' },
-    { id: 'thousand_cookies', name: 'Cookie Hoarder', desc: 'Earn 1,000 cookies', unlocked: false, icon: '💎' },
-    { id: 'first_upgrade', name: 'Investor', desc: 'Buy your first upgrade', unlocked: false, icon: '📈' },
-    { id: 'level_5', name: 'Rising Star', desc: 'Reach level 5', unlocked: false, icon: '⭐' },
-    { id: 'level_10', name: 'Cookie Master', desc: 'Reach level 10', unlocked: false, icon: '👑' },
-    { id: 'level_25', name: 'Cookie Overlord', desc: 'Reach level 25', unlocked: false, icon: '🔥' },
-    { id: 'level_50', name: 'Cookie Deity', desc: 'Reach level 50', unlocked: false, icon: '✨' },
-    { id: 'hundred_cps', name: 'Automation King', desc: '100 cookies per second', unlocked: false, icon: '⚡' },
-    { id: 'thousand_cps', name: 'Production Master', desc: '1,000 cookies per second', unlocked: false, icon: '🏭' },
-    { id: 'first_prestige', name: 'Ascended', desc: 'Prestige for the first time', unlocked: false, icon: '🌟' },
-    { id: 'prestige_5', name: 'Transcendent', desc: 'Reach prestige 5', unlocked: false, icon: '💫' },
-    { id: 'speed_demon', name: 'Speed Demon', desc: '100 clicks in 10 seconds', unlocked: false, icon: '🚀' },
-    { id: 'millionaire', name: 'Millionaire', desc: 'Earn 1,000,000 cookies', unlocked: false, icon: '💸' },
-    { id: 'billionaire', name: 'Billionaire', desc: 'Earn 1,000,000,000 cookies', unlocked: false, icon: '🏦' },
+    { id: 'first_click', name: 'First Cookie', desc: 'Click your first cookie', unlocked: false, icon: '🍪', reward: 10 },
+    { id: 'hundred_cookies', name: 'Cookie Collector', desc: 'Earn 1,000 cookies', unlocked: false, icon: '💰', reward: 100 },
+    { id: 'thousand_cookies', name: 'Cookie Hoarder', desc: 'Earn 100,000 cookies', unlocked: false, icon: '💎', reward: 1000 },
+    { id: 'first_upgrade', name: 'Investor', desc: 'Buy your first upgrade', unlocked: false, icon: '📈', reward: 50 },
+    { id: 'level_5', name: 'Rising Star', desc: 'Reach level 10', unlocked: false, icon: '⭐', reward: 500 },
+    { id: 'level_10', name: 'Cookie Master', desc: 'Reach level 25', unlocked: false, icon: '👑', reward: 2500 },
+    { id: 'level_25', name: 'Cookie Overlord', desc: 'Reach level 50', unlocked: false, icon: '🔥', reward: 10000 },
+    { id: 'level_50', name: 'Cookie Deity', desc: 'Reach level 100', unlocked: false, icon: '✨', reward: 50000 },
+    { id: 'hundred_cps', name: 'Automation King', desc: '1,000 cookies per second', unlocked: false, icon: '⚡', reward: 5000 },
+    { id: 'thousand_cps', name: 'Production Master', desc: '100,000 cookies per second', unlocked: false, icon: '🏭', reward: 50000 },
+    { id: 'first_prestige', name: 'Ascended', desc: 'Prestige for the first time', unlocked: false, icon: '🌟', reward: 10000 },
+    { id: 'prestige_5', name: 'Transcendent', desc: 'Reach prestige 10', unlocked: false, icon: '💫', reward: 100000 },
+    { id: 'speed_demon', name: 'Speed Demon', desc: '100 clicks in 10 seconds', unlocked: false, icon: '🚀', reward: 5000 },
+    { id: 'millionaire', name: 'Millionaire', desc: 'Earn 10,000,000 cookies', unlocked: false, icon: '💸', reward: 100000 },
+    { id: 'billionaire', name: 'Billionaire', desc: 'Earn 1,000,000,000 cookies', unlocked: false, icon: '🏦', reward: 10000000 },
+    { id: 'survivor', name: 'Survivor', desc: 'Survive 10 critical failures', unlocked: false, icon: '💀', reward: 50000 },
   ]);
   
   const [clickStreak, setClickStreak] = useState(0);
   const [lastClickTime, setLastClickTime] = useState(0);
   const clickTimeWindowRef = useRef([]);
+  const [criticalFails, setCriticalFails] = useState(0);
   
   // Particle effects
   const [particles, setParticles] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   
-  // Upgrades with more variety
+  // Upgrades - MASSIVELY HARDER (100x cost increases)
   const [upgrades, setUpgrades] = useState([
-    { id: 1, name: 'Cursed Spatula', desc: 'x2 cookies per click', cost: 15, owned: 0, type: 'click', multiplier: 2, icon: '🥄', tier: 1 },
-    { id: 2, name: 'Magic Mixer', desc: 'x3 cookies per click', cost: 100, owned: 0, type: 'click', multiplier: 3, icon: '🎯', tier: 1 },
-    { id: 3, name: 'Quantum Clicker', desc: 'x5 cookies per click', cost: 1000, owned: 0, type: 'click', multiplier: 5, icon: '⚛️', tier: 2 },
-    { id: 4, name: 'God Hand', desc: 'x10 cookies per click', cost: 50000, owned: 0, type: 'click', multiplier: 10, icon: '✋', tier: 3 },
-    { id: 5, name: 'Reality Warper', desc: 'x25 cookies per click', cost: 500000, owned: 0, type: 'click', multiplier: 25, icon: '🌀', tier: 4 },
+    { id: 1, name: 'Cursed Spatula', desc: 'x2 cookies per click', cost: 50, owned: 0, type: 'click', multiplier: 2, icon: '🥄', tier: 1 },
+    { id: 2, name: 'Magic Mixer', desc: 'x3 cookies per click', cost: 500, owned: 0, type: 'click', multiplier: 3, icon: '🎯', tier: 1 },
+    { id: 3, name: 'Quantum Clicker', desc: 'x5 cookies per click', cost: 5000, owned: 0, type: 'click', multiplier: 5, icon: '⚛️', tier: 2 },
+    { id: 4, name: 'God Hand', desc: 'x10 cookies per click', cost: 250000, owned: 0, type: 'click', multiplier: 10, icon: '✋', tier: 3 },
+    { id: 5, name: 'Reality Warper', desc: 'x25 cookies per click', cost: 10000000, owned: 0, type: 'click', multiplier: 25, icon: '🌀', tier: 4 },
     
-    { id: 10, name: 'Cookie Oven', desc: '+1 cookie/sec', cost: 50, owned: 0, type: 'auto', cps: 1, icon: '🔥', tier: 1 },
-    { id: 11, name: 'Grandma Baker', desc: '+5 cookies/sec', cost: 200, owned: 0, type: 'auto', cps: 5, icon: '👵', tier: 1 },
-    { id: 12, name: 'Cookie Factory', desc: '+15 cookies/sec', cost: 800, owned: 0, type: 'auto', cps: 15, icon: '🏭', tier: 2 },
-    { id: 13, name: 'Cookie Farm', desc: '+50 cookies/sec', cost: 4000, owned: 0, type: 'auto', cps: 50, icon: '🌾', tier: 2 },
-    { id: 14, name: 'Cookie Mine', desc: '+150 cookies/sec', cost: 20000, owned: 0, type: 'auto', cps: 150, icon: '⛏️', tier: 3 },
-    { id: 15, name: 'Cookie Wizard', desc: '+500 cookies/sec', cost: 100000, owned: 0, type: 'auto', cps: 500, icon: '🧙', tier: 3 },
-    { id: 16, name: 'Cookie Portal', desc: '+2000 cookies/sec', cost: 500000, owned: 0, type: 'auto', cps: 2000, icon: '🌀', tier: 4 },
-    { id: 17, name: 'Cookie Dimension', desc: '+10000 cookies/sec', cost: 5000000, owned: 0, type: 'auto', cps: 10000, icon: '🌌', tier: 4 },
-    { id: 18, name: 'Cookie Universe', desc: '+50000 cookies/sec', cost: 50000000, owned: 0, type: 'auto', cps: 50000, icon: '🪐', tier: 5 },
-    { id: 19, name: 'Cookie Multiverse', desc: '+250000 cookies/sec', cost: 500000000, owned: 0, type: 'auto', cps: 250000, icon: '♾️', tier: 5 },
+    { id: 10, name: 'Cookie Oven', desc: '+1 cookie/sec', cost: 200, owned: 0, type: 'auto', cps: 1, icon: '🔥', tier: 1 },
+    { id: 11, name: 'Grandma Baker', desc: '+5 cookies/sec', cost: 1000, owned: 0, type: 'auto', cps: 5, icon: '👵', tier: 1 },
+    { id: 12, name: 'Cookie Factory', desc: '+15 cookies/sec', cost: 5000, owned: 0, type: 'auto', cps: 15, icon: '🏭', tier: 2 },
+    { id: 13, name: 'Cookie Farm', desc: '+50 cookies/sec', cost: 25000, owned: 0, type: 'auto', cps: 50, icon: '🌾', tier: 2 },
+    { id: 14, name: 'Cookie Mine', desc: '+150 cookies/sec', cost: 150000, owned: 0, type: 'auto', cps: 150, icon: '⛏️', tier: 3 },
+    { id: 15, name: 'Cookie Wizard', desc: '+500 cookies/sec', cost: 1000000, owned: 0, type: 'auto', cps: 500, icon: '🧙', tier: 3 },
+    { id: 16, name: 'Cookie Portal', desc: '+2000 cookies/sec', cost: 10000000, owned: 0, type: 'auto', cps: 2000, icon: '🌀', tier: 4 },
+    { id: 17, name: 'Cookie Dimension', desc: '+10000 cookies/sec', cost: 100000000, owned: 0, type: 'auto', cps: 10000, icon: '🌌', tier: 4 },
+    { id: 18, name: 'Cookie Universe', desc: '+50000 cookies/sec', cost: 1000000000, owned: 0, type: 'auto', cps: 50000, icon: '🪐', tier: 5 },
+    { id: 19, name: 'Cookie Multiverse', desc: '+250000 cookies/sec', cost: 10000000000, owned: 0, type: 'auto', cps: 250000, icon: '♾️', tier: 5 },
   ]);
   
-  // Prestige upgrades
+  // Prestige upgrades - HARDER
   const [prestigeUpgrades, setPrestigeUpgrades] = useState([
-    { id: 'p1', name: 'Cookie Blessing', desc: 'Start with 2x click power', cost: 1, owned: false, effect: 'click_start_2x' },
-    { id: 'p2', name: 'Auto Starter', desc: 'Start with 10 CPS', cost: 2, owned: false, effect: 'cps_start_10' },
-    { id: 'p3', name: 'Golden Touch', desc: '+10% all production', cost: 3, owned: false, effect: 'production_10' },
-    { id: 'p4', name: 'Divine Fortune', desc: '+25% all production', cost: 5, owned: false, effect: 'production_25' },
-    { id: 'p5', name: 'Cosmic Power', desc: '+50% all production', cost: 10, owned: false, effect: 'production_50' },
-    { id: 'p6', name: 'Ultimate Force', desc: '+100% all production', cost: 20, owned: false, effect: 'production_100' },
-    { id: 'p7', name: 'Reality Bender', desc: '+200% all production', cost: 50, owned: false, effect: 'production_200' },
+    { id: 'p1', name: 'Cookie Blessing', desc: 'Start with 2x click power', cost: 3, owned: false, effect: 'click_start_2x' },
+    { id: 'p2', name: 'Auto Starter', desc: 'Start with 10 CPS', cost: 5, owned: false, effect: 'cps_start_10' },
+    { id: 'p3', name: 'Golden Touch', desc: '+10% all production', cost: 10, owned: false, effect: 'production_10' },
+    { id: 'p4', name: 'Divine Fortune', desc: '+25% all production', cost: 20, owned: false, effect: 'production_25' },
+    { id: 'p5', name: 'Cosmic Power', desc: '+50% all production', cost: 40, owned: false, effect: 'production_50' },
+    { id: 'p6', name: 'Ultimate Force', desc: '+100% all production', cost: 80, owned: false, effect: 'production_100' },
+    { id: 'p7', name: 'Reality Bender', desc: '+200% all production', cost: 150, owned: false, effect: 'production_200' },
+    { id: 'p8', name: 'Luck Master', desc: 'Reduce critical fail chance', cost: 100, owned: false, effect: 'reduce_crit_fail' },
   ]);
   
-  // Backend API functions
-  const api = {
+  // Backend API functions - OPTIMIZED
+  const api = useMemo(() => ({
     saveProgress: async (data) => {
       try {
         const response = await fetch(`${API_URL}/save`, {
@@ -203,26 +220,29 @@ function UltimateCookieEmpire() {
             ...data
           })
         });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return await response.json();
       } catch (error) {
         console.error('Save failed:', error);
-        return { success: false, error };
+        return { success: false, error: error.message };
       }
     },
     
     loadProgress: async () => {
       try {
         const response = await fetch(`${API_URL}/load/${playerId}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return await response.json();
       } catch (error) {
         console.error('Load failed:', error);
-        return { success: false, error };
+        return { success: false, error: error.message };
       }
     },
     
     getLeaderboard: async () => {
       try {
         const response = await fetch(`${API_URL}/leaderboard`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return await response.json();
       } catch (error) {
         console.error('Leaderboard fetch failed:', error);
@@ -245,7 +265,7 @@ function UltimateCookieEmpire() {
         return await response.json();
       } catch (error) {
         console.error('Give cosmetic failed:', error);
-        return { success: false, error };
+        return { success: false, error: error.message };
       }
     },
     
@@ -275,7 +295,7 @@ function UltimateCookieEmpire() {
         return await response.json();
       } catch (error) {
         console.error('Update player failed:', error);
-        return { success: false, error };
+        return { success: false, error: error.message };
       }
     },
     
@@ -292,10 +312,10 @@ function UltimateCookieEmpire() {
         return await response.json();
       } catch (error) {
         console.error('Delete player failed:', error);
-        return { success: false, error };
+        return { success: false, error: error.message };
       }
     }
-  };
+  }), [playerId, playerName, OWNER_CODE]);
   
   // Load progress on mount
   useEffect(() => {
@@ -312,20 +332,29 @@ function UltimateCookieEmpire() {
         setXp(data.xp || 0);
         setPrestige(data.prestige || 0);
         setPrestigeTokens(data.prestigeTokens || 0);
-        setPlayerName(data.playerName || '');
-        if (data.playerName) setShowNameInput(false);
+        
+        // Save username to localStorage
+        if (data.playerName) {
+          setPlayerName(data.playerName);
+          localStorage.setItem('cookieEmpirePlayerName', data.playerName);
+          setShowNameInput(false);
+        }
+        
         setUpgrades(data.upgrades || upgrades);
         setPrestigeUpgrades(data.prestigeUpgrades || prestigeUpgrades);
         setAchievements(data.achievements || achievements);
         setOwnedCosmetics(data.ownedCosmetics || ownedCosmetics);
         setEquippedCosmetics(data.equippedCosmetics || equippedCosmetics);
+        setCriticalFails(data.criticalFails || 0);
       }
     };
     loadData();
-  }, []);
+  }, [api]);
   
-  // Auto-save every 30 seconds
+  // Auto-save every 30 seconds - FIXED
   useEffect(() => {
+    if (!playerName) return;
+    
     const saveInterval = setInterval(async () => {
       setSaveStatus('saving');
       const result = await api.saveProgress({
@@ -342,7 +371,8 @@ function UltimateCookieEmpire() {
         prestigeUpgrades,
         achievements,
         ownedCosmetics,
-        equippedCosmetics
+        equippedCosmetics,
+        criticalFails
       });
       
       if (result.success) {
@@ -354,13 +384,15 @@ function UltimateCookieEmpire() {
     }, 30000);
     
     return () => clearInterval(saveInterval);
-  }, [cookies, totalCookiesEarned, cookiesPerClick, cookiesPerSecond, totalClicks, level, xp, prestige, prestigeTokens, upgrades, prestigeUpgrades, achievements, ownedCosmetics, equippedCosmetics]);
+  }, [playerName, cookies, totalCookiesEarned, cookiesPerClick, cookiesPerSecond, totalClicks, level, xp, prestige, prestigeTokens, upgrades, prestigeUpgrades, achievements, ownedCosmetics, equippedCosmetics, criticalFails, api]);
   
-  // Level requirements
-  const getLevelRequirement = (lvl) => Math.floor(100 * Math.pow(1.5, lvl - 1));
+  // Level requirements - MUCH HARDER (exponential scaling)
+  const getLevelRequirement = useCallback((lvl) => {
+    return Math.floor(500 * Math.pow(2, lvl - 1));
+  }, []);
   
   // Calculate prestige bonus
-  const getPrestigeMultiplier = () => {
+  const getPrestigeMultiplier = useCallback(() => {
     let mult = 1;
     prestigeUpgrades.forEach(pu => {
       if (pu.owned) {
@@ -372,7 +404,15 @@ function UltimateCookieEmpire() {
       }
     });
     return mult;
-  };
+  }, [prestigeUpgrades]);
+  
+  // NEW: Calculate critical fail chance
+  useEffect(() => {
+    let chance = Math.min(0.15, level * 0.001); // Max 15% chance
+    const hasLuckMaster = prestigeUpgrades.find(pu => pu.id === 'p8' && pu.owned);
+    if (hasLuckMaster) chance *= 0.5;
+    setCriticalFailChance(chance);
+  }, [level, prestigeUpgrades]);
   
   // Auto-generate cookies
   useEffect(() => {
@@ -381,11 +421,11 @@ function UltimateCookieEmpire() {
         const amount = (cookiesPerSecond / 10) * getPrestigeMultiplier();
         setCookies(c => c + amount);
         setTotalCookiesEarned(t => t + amount);
-        setXp(x => x + amount / 10);
+        setXp(x => x + amount / 20); // Slower XP gain
       }
     }, 100);
     return () => clearInterval(interval);
-  }, [cookiesPerSecond]);
+  }, [cookiesPerSecond, getPrestigeMultiplier]);
   
   // Level up logic
   useEffect(() => {
@@ -395,49 +435,52 @@ function UltimateCookieEmpire() {
       setLevel(level + 1);
       createNotification(`🎉 LEVEL UP! You're now level ${level + 1}!`);
       
-      // Level rewards
-      const bonus = level * 100;
+      // Smaller level rewards
+      const bonus = level * 50;
       setCookies(c => c + bonus);
       createNotification(`+${bonus} bonus cookies!`);
     }
-  }, [xp, level]);
+  }, [xp, level, getLevelRequirement]);
   
   // Check achievements
-  useEffect(() => {
-    checkAchievements();
-  }, [totalCookiesEarned, totalClicks, level, cookiesPerSecond, upgrades, prestige]);
-  
-  const checkAchievements = () => {
+  const checkAchievements = useCallback(() => {
     const newAchievements = [...achievements];
     let changed = false;
     
     const checks = [
       { index: 0, condition: totalClicks > 0 },
-      { index: 1, condition: totalCookiesEarned >= 100 },
-      { index: 2, condition: totalCookiesEarned >= 1000 },
+      { index: 1, condition: totalCookiesEarned >= 1000 },
+      { index: 2, condition: totalCookiesEarned >= 100000 },
       { index: 3, condition: upgrades.some(u => u.owned > 0) },
-      { index: 4, condition: level >= 5 },
-      { index: 5, condition: level >= 10 },
-      { index: 6, condition: level >= 25 },
-      { index: 7, condition: level >= 50 },
-      { index: 8, condition: cookiesPerSecond >= 100 },
-      { index: 9, condition: cookiesPerSecond >= 1000 },
+      { index: 4, condition: level >= 10 },
+      { index: 5, condition: level >= 25 },
+      { index: 6, condition: level >= 50 },
+      { index: 7, condition: level >= 100 },
+      { index: 8, condition: cookiesPerSecond >= 1000 },
+      { index: 9, condition: cookiesPerSecond >= 100000 },
       { index: 10, condition: prestige > 0 },
-      { index: 11, condition: prestige >= 5 },
-      { index: 13, condition: totalCookiesEarned >= 1000000 },
+      { index: 11, condition: prestige >= 10 },
+      { index: 13, condition: totalCookiesEarned >= 10000000 },
       { index: 14, condition: totalCookiesEarned >= 1000000000 },
+      { index: 15, condition: criticalFails >= 10 },
     ];
     
     checks.forEach(({ index, condition }) => {
       if (!newAchievements[index].unlocked && condition) {
         newAchievements[index].unlocked = true;
         changed = true;
-        createNotification(`🏆 Achievement: ${newAchievements[index].name}!`);
+        const reward = newAchievements[index].reward;
+        setCookies(c => c + reward);
+        createNotification(`🏆 Achievement: ${newAchievements[index].name}! +${formatNumber(reward)} cookies!`);
       }
     });
     
     if (changed) setAchievements(newAchievements);
-  };
+  }, [achievements, totalCookiesEarned, totalClicks, level, cookiesPerSecond, upgrades, prestige, criticalFails]);
+  
+  useEffect(() => {
+    checkAchievements();
+  }, [checkAchievements]);
   
   // Click tracking for speed demon achievement
   useEffect(() => {
@@ -448,23 +491,35 @@ function UltimateCookieEmpire() {
       const newAch = [...achievements];
       newAch[12].unlocked = true;
       setAchievements(newAch);
-      createNotification('🏆 Achievement: Speed Demon!');
+      setCookies(c => c + 5000);
+      createNotification('🏆 Achievement: Speed Demon! +5,000 cookies!');
     }
-  }, [totalClicks]);
+  }, [totalClicks, achievements]);
   
-  const handleClick = (e) => {
+  // Handle click - WITH CRITICAL FAILURES
+  const handleClick = useCallback((e) => {
+    // NEW: Critical fail mechanic
+    if (Math.random() < criticalFailChance) {
+      const lossAmount = Math.floor(cookies * 0.1); // Lose 10% of cookies
+      setCookies(c => Math.max(0, c - lossAmount));
+      setCriticalFails(cf => cf + 1);
+      createNotification(`💀 CRITICAL FAIL! Lost ${formatNumber(lossAmount)} cookies!`);
+      createParticle(window.innerWidth / 2, window.innerHeight / 2, '💀 FAIL!', '#ff0000');
+      return;
+    }
+    
     const earnedAmount = cookiesPerClick * getPrestigeMultiplier();
-    setCookies(cookies + earnedAmount);
-    setTotalCookiesEarned(totalCookiesEarned + earnedAmount);
-    setXp(xp + earnedAmount / 5);
-    setTotalClicks(totalClicks + 1);
+    setCookies(c => c + earnedAmount);
+    setTotalCookiesEarned(t => t + earnedAmount);
+    setXp(x => x + earnedAmount / 10); // Slower XP gain
+    setTotalClicks(tc => tc + 1);
     
     clickTimeWindowRef.current.push(Date.now());
     
     // Streak logic
     const now = Date.now();
     if (now - lastClickTime < 500) {
-      setClickStreak(clickStreak + 1);
+      setClickStreak(cs => cs + 1);
     } else {
       setClickStreak(1);
     }
@@ -476,12 +531,12 @@ function UltimateCookieEmpire() {
     const y = e.clientY || (rect.top + rect.height / 2);
     createParticle(x, y, `+${formatNumber(earnedAmount)}`);
     
-    // Bonus for streak
-    if (clickStreak > 10 && clickStreak % 10 === 0) {
-      const bonus = earnedAmount * 2;
+    // Bonus for streak (harder to maintain)
+    if (clickStreak > 20 && clickStreak % 20 === 0) {
+      const bonus = earnedAmount * 3;
       setCookies(c => c + bonus);
       setTotalCookiesEarned(t => t + bonus);
-      createParticle(x, y + 30, `🔥 STREAK x${clickStreak}!`, '#ff6b00');
+      createParticle(x, y + 30, `🔥 MEGA STREAK x${clickStreak}!`, '#ff6b00');
     }
     
     // Create visual effect based on equipped effect
@@ -492,46 +547,45 @@ function UltimateCookieEmpire() {
         }, i * 100);
       }
     }
-  };
+  }, [criticalFailChance, cookies, cookiesPerClick, getPrestigeMultiplier, lastClickTime, clickStreak, equippedCosmetics.effect]);
   
-  const createParticle = (x, y, text, color = '#ffd700') => {
+  const createParticle = useCallback((x, y, text, color = '#ffd700') => {
     const id = Date.now() + Math.random();
     setParticles(p => [...p, { id, x, y, text, color }]);
     setTimeout(() => {
       setParticles(p => p.filter(particle => particle.id !== id));
     }, 1000);
-  };
+  }, []);
   
-  const [notifications, setNotifications] = useState([]);
-  
-  const createNotification = (message) => {
+  const createNotification = useCallback((message) => {
     const id = Date.now() + Math.random();
     setNotifications(n => [...n, { id, message }]);
     setTimeout(() => {
       setNotifications(n => n.filter(notif => notif.id !== id));
     }, 3000);
-  };
+  }, []);
   
-  const formatNumber = (num) => {
+  const formatNumber = useCallback((num) => {
+    if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
     if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
     if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
     if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
     return Math.floor(num).toLocaleString();
-  };
+  }, []);
   
-  const buyUpgrade = (upgrade) => {
+  const buyUpgrade = useCallback((upgrade) => {
     if (cookies >= upgrade.cost) {
-      setCookies(cookies - upgrade.cost);
+      setCookies(c => c - upgrade.cost);
       
       const updatedUpgrades = upgrades.map(u => {
         if (u.id === upgrade.id) {
           const newOwned = u.owned + 1;
-          const newCost = Math.floor(u.cost * 1.15);
+          const newCost = Math.floor(u.cost * 1.25); // Steeper cost scaling
           
           if (u.type === 'click') {
-            setCookiesPerClick(cookiesPerClick * u.multiplier);
+            setCookiesPerClick(cpc => cpc * u.multiplier);
           } else if (u.type === 'auto') {
-            setCookiesPerSecond(cookiesPerSecond + u.cps);
+            setCookiesPerSecond(cps => cps + u.cps);
           }
           
           return { ...u, owned: newOwned, cost: newCost };
@@ -542,11 +596,11 @@ function UltimateCookieEmpire() {
       setUpgrades(updatedUpgrades);
       createNotification(`Purchased ${upgrade.name}!`);
     }
-  };
+  }, [cookies, upgrades, createNotification]);
   
-  const buyPrestigeUpgrade = (upgrade) => {
+  const buyPrestigeUpgrade = useCallback((upgrade) => {
     if (prestigeTokens >= upgrade.cost && !upgrade.owned) {
-      setPrestigeTokens(prestigeTokens - upgrade.cost);
+      setPrestigeTokens(pt => pt - upgrade.cost);
       
       const updated = prestigeUpgrades.map(pu => {
         if (pu.id === upgrade.id) {
@@ -564,17 +618,18 @@ function UltimateCookieEmpire() {
       setPrestigeUpgrades(updated);
       createNotification(`Unlocked ${upgrade.name}!`);
     }
-  };
+  }, [prestigeTokens, prestigeUpgrades, createNotification]);
   
-  const doPrestige = () => {
-    if (level < 10) {
-      createNotification('⚠️ Reach level 10 to prestige!');
+  // Prestige - MUCH HARDER
+  const doPrestige = useCallback(() => {
+    if (level < 25) {
+      createNotification('⚠️ Reach level 25 to prestige!');
       return;
     }
     
-    const tokensEarned = Math.floor(level / 5);
+    const tokensEarned = Math.floor(level / 10); // Fewer tokens
     
-    if (confirm(`Prestige and earn ${tokensEarned} tokens? This will reset your progress!`)) {
+    if (confirm(`Prestige and earn ${tokensEarned} tokens? This will reset ALL progress!`)) {
       let startClick = 1;
       let startCPS = 0;
       
@@ -590,54 +645,68 @@ function UltimateCookieEmpire() {
       setTotalClicks(0);
       setLevel(1);
       setXp(0);
-      setPrestige(prestige + 1);
-      setPrestigeTokens(prestigeTokens + tokensEarned);
+      setPrestige(p => p + 1);
+      setPrestigeTokens(pt => pt + tokensEarned);
+      setCriticalFails(0);
       
+      // Reset upgrades
       setUpgrades([
-        { id: 1, name: 'Cursed Spatula', desc: 'x2 cookies per click', cost: 15, owned: 0, type: 'click', multiplier: 2, icon: '🥄', tier: 1 },
-        { id: 2, name: 'Magic Mixer', desc: 'x3 cookies per click', cost: 100, owned: 0, type: 'click', multiplier: 3, icon: '🎯', tier: 1 },
-        { id: 3, name: 'Quantum Clicker', desc: 'x5 cookies per click', cost: 1000, owned: 0, type: 'click', multiplier: 5, icon: '⚛️', tier: 2 },
-        { id: 4, name: 'God Hand', desc: 'x10 cookies per click', cost: 50000, owned: 0, type: 'click', multiplier: 10, icon: '✋', tier: 3 },
-        { id: 5, name: 'Reality Warper', desc: 'x25 cookies per click', cost: 500000, owned: 0, type: 'click', multiplier: 25, icon: '🌀', tier: 4 },
-        { id: 10, name: 'Cookie Oven', desc: '+1 cookie/sec', cost: 50, owned: 0, type: 'auto', cps: 1, icon: '🔥', tier: 1 },
-        { id: 11, name: 'Grandma Baker', desc: '+5 cookies/sec', cost: 200, owned: 0, type: 'auto', cps: 5, icon: '👵', tier: 1 },
-        { id: 12, name: 'Cookie Factory', desc: '+15 cookies/sec', cost: 800, owned: 0, type: 'auto', cps: 15, icon: '🏭', tier: 2 },
-        { id: 13, name: 'Cookie Farm', desc: '+50 cookies/sec', cost: 4000, owned: 0, type: 'auto', cps: 50, icon: '🌾', tier: 2 },
-        { id: 14, name: 'Cookie Mine', desc: '+150 cookies/sec', cost: 20000, owned: 0, type: 'auto', cps: 150, icon: '⛏️', tier: 3 },
-        { id: 15, name: 'Cookie Wizard', desc: '+500 cookies/sec', cost: 100000, owned: 0, type: 'auto', cps: 500, icon: '🧙', tier: 3 },
-        { id: 16, name: 'Cookie Portal', desc: '+2000 cookies/sec', cost: 500000, owned: 0, type: 'auto', cps: 2000, icon: '🌀', tier: 4 },
-        { id: 17, name: 'Cookie Dimension', desc: '+10000 cookies/sec', cost: 5000000, owned: 0, type: 'auto', cps: 10000, icon: '🌌', tier: 4 },
-        { id: 18, name: 'Cookie Universe', desc: '+50000 cookies/sec', cost: 50000000, owned: 0, type: 'auto', cps: 50000, icon: '🪐', tier: 5 },
-        { id: 19, name: 'Cookie Multiverse', desc: '+250000 cookies/sec', cost: 500000000, owned: 0, type: 'auto', cps: 250000, icon: '♾️', tier: 5 },
+        { id: 1, name: 'Cursed Spatula', desc: 'x2 cookies per click', cost: 50, owned: 0, type: 'click', multiplier: 2, icon: '🥄', tier: 1 },
+        { id: 2, name: 'Magic Mixer', desc: 'x3 cookies per click', cost: 500, owned: 0, type: 'click', multiplier: 3, icon: '🎯', tier: 1 },
+        { id: 3, name: 'Quantum Clicker', desc: 'x5 cookies per click', cost: 5000, owned: 0, type: 'click', multiplier: 5, icon: '⚛️', tier: 2 },
+        { id: 4, name: 'God Hand', desc: 'x10 cookies per click', cost: 250000, owned: 0, type: 'click', multiplier: 10, icon: '✋', tier: 3 },
+        { id: 5, name: 'Reality Warper', desc: 'x25 cookies per click', cost: 10000000, owned: 0, type: 'click', multiplier: 25, icon: '🌀', tier: 4 },
+        { id: 10, name: 'Cookie Oven', desc: '+1 cookie/sec', cost: 200, owned: 0, type: 'auto', cps: 1, icon: '🔥', tier: 1 },
+        { id: 11, name: 'Grandma Baker', desc: '+5 cookies/sec', cost: 1000, owned: 0, type: 'auto', cps: 5, icon: '👵', tier: 1 },
+        { id: 12, name: 'Cookie Factory', desc: '+15 cookies/sec', cost: 5000, owned: 0, type: 'auto', cps: 15, icon: '🏭', tier: 2 },
+        { id: 13, name: 'Cookie Farm', desc: '+50 cookies/sec', cost: 25000, owned: 0, type: 'auto', cps: 50, icon: '🌾', tier: 2 },
+        { id: 14, name: 'Cookie Mine', desc: '+150 cookies/sec', cost: 150000, owned: 0, type: 'auto', cps: 150, icon: '⛏️', tier: 3 },
+        { id: 15, name: 'Cookie Wizard', desc: '+500 cookies/sec', cost: 1000000, owned: 0, type: 'auto', cps: 500, icon: '🧙', tier: 3 },
+        { id: 16, name: 'Cookie Portal', desc: '+2000 cookies/sec', cost: 10000000, owned: 0, type: 'auto', cps: 2000, icon: '🌀', tier: 4 },
+        { id: 17, name: 'Cookie Dimension', desc: '+10000 cookies/sec', cost: 100000000, owned: 0, type: 'auto', cps: 10000, icon: '🌌', tier: 4 },
+        { id: 18, name: 'Cookie Universe', desc: '+50000 cookies/sec', cost: 1000000000, owned: 0, type: 'auto', cps: 50000, icon: '🪐', tier: 5 },
+        { id: 19, name: 'Cookie Multiverse', desc: '+250000 cookies/sec', cost: 10000000000, owned: 0, type: 'auto', cps: 250000, icon: '♾️', tier: 5 },
       ]);
       
       createNotification(`🌟 PRESTIGE ${prestige + 1}! +${tokensEarned} tokens!`);
       updateLeaderboard();
     }
-  };
+  }, [level, prestige, prestigeUpgrades, createNotification]);
   
-  const updateLeaderboard = async () => {
+  const updateLeaderboard = useCallback(async () => {
     setLeaderboardLoading(true);
     const result = await api.getLeaderboard();
     if (result.success) {
       setLeaderboard(result.data);
     }
     setLeaderboardLoading(false);
-  };
+  }, [api]);
   
   useEffect(() => {
     if (showLeaderboard) {
       updateLeaderboard();
     }
-  }, [showLeaderboard]);
+  }, [showLeaderboard, updateLeaderboard]);
+  
+  // NEW: Buy cosmetic with cookies
+  const buyCosmetic = useCallback((type, cosmetic) => {
+    if (cookies >= cosmetic.cost && !ownedCosmetics[type + 's'].includes(cosmetic.id)) {
+      setCookies(c => c - cosmetic.cost);
+      setOwnedCosmetics(oc => ({
+        ...oc,
+        [type + 's']: [...oc[type + 's'], cosmetic.id]
+      }));
+      createNotification(`🎨 Purchased ${cosmetic.name}!`);
+    }
+  }, [cookies, ownedCosmetics, createNotification]);
   
   // Cosmetics functions
-  const equipCosmetic = (type, id) => {
-    setEquippedCosmetics({ ...equippedCosmetics, [type]: id });
+  const equipCosmetic = useCallback((type, id) => {
+    setEquippedCosmetics(ec => ({ ...ec, [type]: id }));
     createNotification(`Equipped ${COSMETICS[type + 's'].find(c => c.id === id).name}!`);
-  };
+  }, [createNotification]);
   
-  const getRarityColor = (rarity) => {
+  const getRarityColor = useCallback((rarity) => {
     switch (rarity) {
       case 'common': return 'text-gray-400';
       case 'rare': return 'text-blue-400';
@@ -645,9 +714,9 @@ function UltimateCookieEmpire() {
       case 'legendary': return 'text-yellow-400';
       default: return 'text-white';
     }
-  };
+  }, []);
   
-  const getRarityBorder = (rarity) => {
+  const getRarityBorder = useCallback((rarity) => {
     switch (rarity) {
       case 'common': return 'border-gray-500/50';
       case 'rare': return 'border-blue-500/50';
@@ -655,10 +724,10 @@ function UltimateCookieEmpire() {
       case 'legendary': return 'border-yellow-500/50';
       default: return 'border-gray-500/50';
     }
-  };
+  }, []);
   
   // Owner functions
-  const ownerGiveCosmetic = async () => {
+  const ownerGiveCosmetic = useCallback(async () => {
     if (!targetUsername || !selectedCosmetic) {
       createNotification('❌ Select username and cosmetic');
       return;
@@ -670,70 +739,70 @@ function UltimateCookieEmpire() {
       setTargetUsername('');
       setSelectedCosmetic(null);
     } else {
-      createNotification('❌ Failed to give cosmetic');
+      createNotification(`❌ Failed: ${result.error || 'Unknown error'}`);
     }
-  };
+  }, [targetUsername, selectedCosmetic, api, createNotification]);
   
-  const loadAllPlayers = async () => {
+  const loadAllPlayers = useCallback(async () => {
     const result = await api.getAllPlayers();
     if (result.success) {
       setAllPlayers(result.data);
     }
-  };
+  }, [api]);
   
   useEffect(() => {
     if (isOwner && ownerTab === 'players') {
       loadAllPlayers();
     }
-  }, [isOwner, ownerTab]);
+  }, [isOwner, ownerTab, loadAllPlayers]);
   
   // OWNER DASHBOARD FUNCTIONS
-  const ownerSetCookies = (amount) => {
+  const ownerSetCookies = useCallback((amount) => {
     setCookies(amount);
     createNotification(`🔧 Set cookies to ${formatNumber(amount)}`);
-  };
+  }, [formatNumber, createNotification]);
   
-  const ownerAddCookies = (amount) => {
+  const ownerAddCookies = useCallback((amount) => {
     setCookies(c => c + amount);
     createNotification(`🔧 Added ${formatNumber(amount)} cookies`);
-  };
+  }, [formatNumber, createNotification]);
   
-  const ownerSetLevel = (lvl) => {
+  const ownerSetLevel = useCallback((lvl) => {
     setLevel(lvl);
     createNotification(`🔧 Set level to ${lvl}`);
-  };
+  }, [createNotification]);
   
-  const ownerSetPrestige = (p) => {
+  const ownerSetPrestige = useCallback((p) => {
     setPrestige(p);
     createNotification(`🔧 Set prestige to ${p}`);
-  };
+  }, [createNotification]);
   
-  const ownerSetPrestigeTokens = (tokens) => {
+  const ownerSetPrestigeTokens = useCallback((tokens) => {
     setPrestigeTokens(tokens);
     createNotification(`🔧 Set prestige tokens to ${tokens}`);
-  };
+  }, [createNotification]);
   
-  const ownerMultiplyCookies = (mult) => {
+  const ownerMultiplyCookies = useCallback((mult) => {
     setCookies(c => Math.floor(c * mult));
     createNotification(`🔧 Multiplied cookies by ${mult}x`);
-  };
+  }, [createNotification]);
   
-  const ownerSetCPS = (cps) => {
+  const ownerSetCPS = useCallback((cps) => {
     setCookiesPerSecond(cps);
     createNotification(`🔧 Set CPS to ${formatNumber(cps)}`);
-  };
+  }, [formatNumber, createNotification]);
   
-  const ownerSetCPC = (cpc) => {
+  const ownerSetCPC = useCallback((cpc) => {
     setCookiesPerClick(cpc);
     createNotification(`🔧 Set CPC to ${formatNumber(cpc)}`);
-  };
+  }, [formatNumber, createNotification]);
   
-  const ownerUnlockAllAchievements = () => {
-    setAchievements(achievements.map(a => ({ ...a, unlocked: true })));
+  const ownerUnlockAllAchievements = useCallback(() => {
+    setAchievements(ach => ach.map(a => ({ ...a, unlocked: true })));
     createNotification('🔧 All achievements unlocked');
-  };
+  }, [createNotification]);
   
-  const ownerUnlockAllCosmetics = () => {
+  const ownerUnlockAllCosmetics = useCallback(() => {
     setOwnedCosmetics({
       cookies: COSMETICS.cookies.map(c => c.id),
       themes: COSMETICS.themes.map(t => t.id),
@@ -741,9 +810,9 @@ function UltimateCookieEmpire() {
       titles: COSMETICS.titles.map(t => t.id)
     });
     createNotification('🔧 All cosmetics unlocked');
-  };
+  }, [createNotification]);
   
-  const ownerMaxAllUpgrades = () => {
+  const ownerMaxAllUpgrades = useCallback(() => {
     const maxed = upgrades.map(u => ({ ...u, owned: 100 }));
     setUpgrades(maxed);
     
@@ -757,9 +826,9 @@ function UltimateCookieEmpire() {
     setCookiesPerClick(totalCPC);
     setCookiesPerSecond(totalCPS);
     createNotification('🔧 All upgrades maxed to 100');
-  };
+  }, [upgrades, createNotification]);
   
-  const ownerGodMode = () => {
+  const ownerGodMode = useCallback(() => {
     ownerSetCookies(999999999999);
     ownerSetLevel(999);
     ownerSetPrestige(99);
@@ -769,9 +838,9 @@ function UltimateCookieEmpire() {
     ownerUnlockAllAchievements();
     ownerUnlockAllCosmetics();
     createNotification('👑 GOD MODE ACTIVATED');
-  };
+  }, [ownerSetCookies, ownerSetLevel, ownerSetPrestige, ownerSetPrestigeTokens, ownerSetCPS, ownerSetCPC, ownerUnlockAllAchievements, ownerUnlockAllCosmetics, createNotification]);
   
-  const ownerResetGame = () => {
+  const ownerResetGame = useCallback(() => {
     if (confirm('Reset ENTIRE game? This cannot be undone!')) {
       setCookies(0);
       setTotalCookiesEarned(0);
@@ -782,25 +851,26 @@ function UltimateCookieEmpire() {
       setXp(0);
       setPrestige(0);
       setPrestigeTokens(0);
-      setAchievements(achievements.map(a => ({ ...a, unlocked: false })));
+      setCriticalFails(0);
+      setAchievements(ach => ach.map(a => ({ ...a, unlocked: false })));
       setUpgrades([
-        { id: 1, name: 'Cursed Spatula', desc: 'x2 cookies per click', cost: 15, owned: 0, type: 'click', multiplier: 2, icon: '🥄', tier: 1 },
-        { id: 2, name: 'Magic Mixer', desc: 'x3 cookies per click', cost: 100, owned: 0, type: 'click', multiplier: 3, icon: '🎯', tier: 1 },
-        { id: 3, name: 'Quantum Clicker', desc: 'x5 cookies per click', cost: 1000, owned: 0, type: 'click', multiplier: 5, icon: '⚛️', tier: 2 },
-        { id: 4, name: 'God Hand', desc: 'x10 cookies per click', cost: 50000, owned: 0, type: 'click', multiplier: 10, icon: '✋', tier: 3 },
-        { id: 5, name: 'Reality Warper', desc: 'x25 cookies per click', cost: 500000, owned: 0, type: 'click', multiplier: 25, icon: '🌀', tier: 4 },
-        { id: 10, name: 'Cookie Oven', desc: '+1 cookie/sec', cost: 50, owned: 0, type: 'auto', cps: 1, icon: '🔥', tier: 1 },
-        { id: 11, name: 'Grandma Baker', desc: '+5 cookies/sec', cost: 200, owned: 0, type: 'auto', cps: 5, icon: '👵', tier: 1 },
-        { id: 12, name: 'Cookie Factory', desc: '+15 cookies/sec', cost: 800, owned: 0, type: 'auto', cps: 15, icon: '🏭', tier: 2 },
-        { id: 13, name: 'Cookie Farm', desc: '+50 cookies/sec', cost: 4000, owned: 0, type: 'auto', cps: 50, icon: '🌾', tier: 2 },
-        { id: 14, name: 'Cookie Mine', desc: '+150 cookies/sec', cost: 20000, owned: 0, type: 'auto', cps: 150, icon: '⛏️', tier: 3 },
-        { id: 15, name: 'Cookie Wizard', desc: '+500 cookies/sec', cost: 100000, owned: 0, type: 'auto', cps: 500, icon: '🧙', tier: 3 },
-        { id: 16, name: 'Cookie Portal', desc: '+2000 cookies/sec', cost: 500000, owned: 0, type: 'auto', cps: 2000, icon: '🌀', tier: 4 },
-        { id: 17, name: 'Cookie Dimension', desc: '+10000 cookies/sec', cost: 5000000, owned: 0, type: 'auto', cps: 10000, icon: '🌌', tier: 4 },
-        { id: 18, name: 'Cookie Universe', desc: '+50000 cookies/sec', cost: 50000000, owned: 0, type: 'auto', cps: 50000, icon: '🪐', tier: 5 },
-        { id: 19, name: 'Cookie Multiverse', desc: '+250000 cookies/sec', cost: 500000000, owned: 0, type: 'auto', cps: 250000, icon: '♾️', tier: 5 },
+        { id: 1, name: 'Cursed Spatula', desc: 'x2 cookies per click', cost: 50, owned: 0, type: 'click', multiplier: 2, icon: '🥄', tier: 1 },
+        { id: 2, name: 'Magic Mixer', desc: 'x3 cookies per click', cost: 500, owned: 0, type: 'click', multiplier: 3, icon: '🎯', tier: 1 },
+        { id: 3, name: 'Quantum Clicker', desc: 'x5 cookies per click', cost: 5000, owned: 0, type: 'click', multiplier: 5, icon: '⚛️', tier: 2 },
+        { id: 4, name: 'God Hand', desc: 'x10 cookies per click', cost: 250000, owned: 0, type: 'click', multiplier: 10, icon: '✋', tier: 3 },
+        { id: 5, name: 'Reality Warper', desc: 'x25 cookies per click', cost: 10000000, owned: 0, type: 'click', multiplier: 25, icon: '🌀', tier: 4 },
+        { id: 10, name: 'Cookie Oven', desc: '+1 cookie/sec', cost: 200, owned: 0, type: 'auto', cps: 1, icon: '🔥', tier: 1 },
+        { id: 11, name: 'Grandma Baker', desc: '+5 cookies/sec', cost: 1000, owned: 0, type: 'auto', cps: 5, icon: '👵', tier: 1 },
+        { id: 12, name: 'Cookie Factory', desc: '+15 cookies/sec', cost: 5000, owned: 0, type: 'auto', cps: 15, icon: '🏭', tier: 2 },
+        { id: 13, name: 'Cookie Farm', desc: '+50 cookies/sec', cost: 25000, owned: 0, type: 'auto', cps: 50, icon: '🌾', tier: 2 },
+        { id: 14, name: 'Cookie Mine', desc: '+150 cookies/sec', cost: 150000, owned: 0, type: 'auto', cps: 150, icon: '⛏️', tier: 3 },
+        { id: 15, name: 'Cookie Wizard', desc: '+500 cookies/sec', cost: 1000000, owned: 0, type: 'auto', cps: 500, icon: '🧙', tier: 3 },
+        { id: 16, name: 'Cookie Portal', desc: '+2000 cookies/sec', cost: 10000000, owned: 0, type: 'auto', cps: 2000, icon: '🌀', tier: 4 },
+        { id: 17, name: 'Cookie Dimension', desc: '+10000 cookies/sec', cost: 100000000, owned: 0, type: 'auto', cps: 10000, icon: '🌌', tier: 4 },
+        { id: 18, name: 'Cookie Universe', desc: '+50000 cookies/sec', cost: 1000000000, owned: 0, type: 'auto', cps: 50000, icon: '🪐', tier: 5 },
+        { id: 19, name: 'Cookie Multiverse', desc: '+250000 cookies/sec', cost: 10000000000, owned: 0, type: 'auto', cps: 250000, icon: '♾️', tier: 5 },
       ]);
-      setPrestigeUpgrades(prestigeUpgrades.map(pu => ({ ...pu, owned: false })));
+      setPrestigeUpgrades(pu => pu.map(p => ({ ...p, owned: false })));
       setOwnedCosmetics({
         cookies: ['default'],
         themes: ['default'],
@@ -815,17 +885,36 @@ function UltimateCookieEmpire() {
       });
       createNotification('🔧 Game fully reset');
     }
-  };
+  }, [createNotification]);
   
   // Get current equipped cosmetics
-  const getEquippedCookie = () => COSMETICS.cookies.find(c => c.id === equippedCosmetics.cookie) || COSMETICS.cookies[0];
-  const getEquippedTheme = () => COSMETICS.themes.find(t => t.id === equippedCosmetics.theme) || COSMETICS.themes[0];
-  const getEquippedTitle = () => COSMETICS.titles.find(t => t.id === equippedCosmetics.title) || COSMETICS.titles[0];
+  const getEquippedCookie = useCallback(() => {
+    return COSMETICS.cookies.find(c => c.id === equippedCosmetics.cookie) || COSMETICS.cookies[0];
+  }, [equippedCosmetics.cookie]);
   
+  const getEquippedTheme = useCallback(() => {
+    return COSMETICS.themes.find(t => t.id === equippedCosmetics.theme) || COSMETICS.themes[0];
+  }, [equippedCosmetics.theme]);
+  
+  const getEquippedTitle = useCallback(() => {
+    return COSMETICS.titles.find(t => t.id === equippedCosmetics.title) || COSMETICS.titles[0];
+  }, [equippedCosmetics.title]);
+  
+  // Save username to localStorage when START button is clicked
+  const handleStartEmpire = useCallback(() => {
+    if (playerName) {
+      localStorage.setItem('cookieEmpirePlayerName', playerName);
+      setShowNameInput(false);
+    }
+  }, [playerName]);
+  
+  // Name input screen
   if (showNameInput) {
+    const equippedTheme = getEquippedTheme();
+    
     return (
       <div className="min-h-screen bg-black flex items-center justify-center p-4 relative overflow-hidden">
-        <div className={`absolute inset-0 bg-gradient-to-br ${getEquippedTheme().gradient}`} />
+        <div className={`absolute inset-0 bg-gradient-to-br ${equippedTheme.gradient}`} />
         <div className="absolute inset-0" style={{
           backgroundImage: `
             radial-gradient(circle at 20% 50%, rgba(147, 51, 234, 0.1) 0%, transparent 50%),
@@ -840,10 +929,13 @@ function UltimateCookieEmpire() {
               COOKIE EMPIRE
             </h1>
             <p className="text-cyan-300 text-xl font-bold" style={{ fontFamily: 'Courier New, monospace' }}>
-              ULTIMATE EDITION
+              HARDCORE EDITION
             </p>
             <p className="text-cyan-400 text-sm mt-2">
-              With Backend • Real Leaderboard • Cosmetics
+              100x Harder • Critical Fails • Epic Rewards
+            </p>
+            <p className="text-red-400 text-xs mt-2">
+              ⚠️ WARNING: This game is EXTREMELY difficult!
             </p>
           </div>
           
@@ -855,18 +947,18 @@ function UltimateCookieEmpire() {
               type="text"
               value={playerName}
               onChange={(e) => setPlayerName(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && playerName && setShowNameInput(false)}
+              onKeyPress={(e) => e.key === 'Enter' && playerName && handleStartEmpire()}
               className="w-full bg-black/50 border-2 border-cyan-500/50 rounded-lg px-4 py-3 text-white text-xl focus:outline-none focus:border-cyan-400 transition-all"
-              placeholder="Anonymous"
+              placeholder="Enter username"
               autoFocus
               maxLength={20}
             />
             <button
-              onClick={() => playerName && setShowNameInput(false)}
+              onClick={handleStartEmpire}
               disabled={!playerName}
               className="w-full mt-6 bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 disabled:from-gray-600 disabled:to-gray-700 text-white font-bold py-4 rounded-lg text-xl transition-all transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed shadow-lg"
             >
-              START EMPIRE
+              START HARDCORE MODE
             </button>
           </div>
         </div>
@@ -878,9 +970,10 @@ function UltimateCookieEmpire() {
   const equippedTheme = getEquippedTheme();
   const equippedTitle = getEquippedTitle();
   
+  // Main game render
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
-      {/* Animated background with equipped theme */}
+      {/* Animated background */}
       <div className={`fixed inset-0 bg-gradient-to-br ${equippedTheme.gradient}`} />
       <div className="fixed inset-0" style={{
         backgroundImage: `
@@ -901,6 +994,16 @@ function UltimateCookieEmpire() {
         </span>
       </div>
       
+      {/* NEW: Critical fail warning */}
+      {criticalFailChance > 0 && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-40 bg-red-900/60 backdrop-blur-md px-4 py-2 rounded-lg border border-red-500/30">
+          <span className="text-xs text-red-300 flex items-center gap-2">
+            <Skull className="w-4 h-4" />
+            CRITICAL FAIL CHANCE: {(criticalFailChance * 100).toFixed(1)}%
+          </span>
+        </div>
+      )}
+      
       {/* Floating particles */}
       {particles.map(particle => (
         <div
@@ -919,7 +1022,7 @@ function UltimateCookieEmpire() {
       ))}
       
       {/* Notifications */}
-      <div className="fixed top-4 right-4 z-50 space-y-2">
+      <div className="fixed top-4 right-4 z-50 space-y-2 max-w-sm">
         {notifications.map(notif => (
           <div
             key={notif.id}
@@ -950,579 +1053,20 @@ function UltimateCookieEmpire() {
         </button>
       )}
       
-      {/* Owner dashboard */}
-      {isOwner && ownerPanelOpen && (
-        <div className="fixed inset-0 bg-black/95 backdrop-blur-md z-50 overflow-y-auto p-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="bg-gradient-to-br from-yellow-900/60 to-orange-900/60 rounded-2xl border-2 border-yellow-500/50 p-6 backdrop-blur-xl">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-4xl font-black text-yellow-400 flex items-center gap-3">
-                  <Crown className="w-10 h-10" />
-                  OWNER COMMAND CENTER
-                </h2>
-                <button
-                  onClick={() => setOwnerPanelOpen(false)}
-                  className="text-yellow-400 hover:text-yellow-300 transition-colors"
-                >
-                  <X className="w-8 h-8" />
-                </button>
-              </div>
-              
-              {/* Owner tabs */}
-              <div className="flex gap-2 mb-6 overflow-x-auto">
-                {['stats', 'cosmetics', 'players', 'advanced'].map(tab => (
-                  <button
-                    key={tab}
-                    onClick={() => setOwnerTab(tab)}
-                    className={`px-6 py-3 rounded-lg font-bold transition-all capitalize ${
-                      ownerTab === tab
-                        ? 'bg-yellow-600 text-white'
-                        : 'bg-black/40 text-yellow-400 hover:bg-black/60'
-                    }`}
-                  >
-                    {tab}
-                  </button>
-                ))}
-              </div>
-              
-              {/* Stats tab */}
-              {ownerTab === 'stats' && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-black/50 rounded-lg p-4 border border-yellow-500/30 col-span-3">
-                    <h3 className="text-yellow-400 font-bold mb-3 flex items-center gap-2">
-                      <Database className="w-5 h-5" />
-                      CURRENT PLAYER STATS
-                    </h3>
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
-                      <div>
-                        <div className="text-yellow-400/70">Cookies:</div>
-                        <div className="font-bold text-lg">{formatNumber(cookies)}</div>
-                      </div>
-                      <div>
-                        <div className="text-yellow-400/70">CPS:</div>
-                        <div className="font-bold text-lg">{formatNumber(cookiesPerSecond)}</div>
-                      </div>
-                      <div>
-                        <div className="text-yellow-400/70">CPC:</div>
-                        <div className="font-bold text-lg">{formatNumber(cookiesPerClick)}</div>
-                      </div>
-                      <div>
-                        <div className="text-yellow-400/70">Level:</div>
-                        <div className="font-bold text-lg">{level}</div>
-                      </div>
-                      <div>
-                        <div className="text-yellow-400/70">Prestige:</div>
-                        <div className="font-bold text-lg">{prestige}</div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-black/50 rounded-lg p-4 border border-yellow-500/30">
-                    <h3 className="text-yellow-400 font-bold mb-3 flex items-center gap-2">
-                      <DollarSign className="w-5 h-5" />
-                      COOKIE CONTROLS
-                    </h3>
-                    <div className="space-y-2">
-                      <button onClick={() => ownerAddCookies(1000000)} className="w-full bg-yellow-600 hover:bg-yellow-500 px-4 py-2 rounded text-sm font-bold transition-all">
-                        +1M Cookies
-                      </button>
-                      <button onClick={() => ownerAddCookies(1000000000)} className="w-full bg-yellow-600 hover:bg-yellow-500 px-4 py-2 rounded text-sm font-bold transition-all">
-                        +1B Cookies
-                      </button>
-                      <button onClick={() => ownerMultiplyCookies(10)} className="w-full bg-orange-600 hover:bg-orange-500 px-4 py-2 rounded text-sm font-bold transition-all">
-                        10x Cookies
-                      </button>
-                      <button onClick={() => ownerMultiplyCookies(1000)} className="w-full bg-orange-600 hover:bg-orange-500 px-4 py-2 rounded text-sm font-bold transition-all">
-                        1000x Cookies
-                      </button>
-                      <button onClick={() => ownerSetCookies(0)} className="w-full bg-red-600 hover:bg-red-500 px-4 py-2 rounded text-sm font-bold transition-all">
-                        Reset to 0
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-black/50 rounded-lg p-4 border border-yellow-500/30">
-                    <h3 className="text-yellow-400 font-bold mb-3 flex items-center gap-2">
-                      <TrendingUp className="w-5 h-5" />
-                      PRODUCTION
-                    </h3>
-                    <div className="space-y-2">
-                      <button onClick={() => ownerSetCPS(1000000)} className="w-full bg-cyan-600 hover:bg-cyan-500 px-4 py-2 rounded text-sm font-bold transition-all">
-                        1M CPS
-                      </button>
-                      <button onClick={() => ownerSetCPS(1000000000)} className="w-full bg-cyan-600 hover:bg-cyan-500 px-4 py-2 rounded text-sm font-bold transition-all">
-                        1B CPS
-                      </button>
-                      <button onClick={() => ownerSetCPC(1000000)} className="w-full bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded text-sm font-bold transition-all">
-                        1M CPC
-                      </button>
-                      <button onClick={() => ownerSetCPC(1000000000)} className="w-full bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded text-sm font-bold transition-all">
-                        1B CPC
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-black/50 rounded-lg p-4 border border-yellow-500/30">
-                    <h3 className="text-yellow-400 font-bold mb-3 flex items-center gap-2">
-                      <Zap className="w-5 h-5" />
-                      POWER COMMANDS
-                    </h3>
-                    <div className="space-y-2">
-                      <button onClick={() => ownerSetLevel(100)} className="w-full bg-green-600 hover:bg-green-500 px-4 py-2 rounded text-sm font-bold transition-all">
-                        Set Level 100
-                      </button>
-                      <button onClick={() => ownerSetPrestigeTokens(1000)} className="w-full bg-pink-600 hover:bg-pink-500 px-4 py-2 rounded text-sm font-bold transition-all">
-                        +1000 P. Tokens
-                      </button>
-                      <button onClick={ownerUnlockAllAchievements} className="w-full bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded text-sm font-bold transition-all">
-                        All Achievements
-                      </button>
-                      <button onClick={ownerUnlockAllCosmetics} className="w-full bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded text-sm font-bold transition-all">
-                        All Cosmetics
-                      </button>
-                      <button onClick={ownerMaxAllUpgrades} className="w-full bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded text-sm font-bold transition-all">
-                        Max All Upgrades
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-black/50 rounded-lg p-4 border border-red-500/50 col-span-3">
-                    <h3 className="text-red-400 font-bold mb-3 flex items-center gap-2">
-                      <Shield className="w-5 h-5" />
-                      EXTREME COMMANDS
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      <button onClick={ownerGodMode} className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 px-4 py-3 rounded font-bold transition-all shadow-lg">
-                        👑 ACTIVATE GOD MODE 👑
-                      </button>
-                      <button onClick={ownerResetGame} className="bg-red-700 hover:bg-red-600 px-4 py-3 rounded font-bold transition-all">
-                        ⚠️ FULL RESET (DANGER)
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              {/* Cosmetics tab */}
-              {ownerTab === 'cosmetics' && (
-                <div className="space-y-4">
-                  <div className="bg-black/50 rounded-lg p-6 border border-yellow-500/30">
-                    <h3 className="text-yellow-400 font-bold mb-4 flex items-center gap-2 text-xl">
-                      <Gift className="w-6 h-6" />
-                      GIVE COSMETICS TO PLAYERS
-                    </h3>
-                    
-                    <div className="mb-4">
-                      <label className="block text-yellow-400 mb-2 font-semibold">Target Username:</label>
-                      <input
-                        type="text"
-                        value={targetUsername}
-                        onChange={(e) => setTargetUsername(e.target.value)}
-                        className="w-full bg-black/50 border-2 border-yellow-500/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-yellow-400"
-                        placeholder="Enter player username"
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                      {Object.keys(COSMETICS).map(type => (
-                        <div key={type} className="bg-black/30 rounded-lg p-4 border border-yellow-500/20">
-                          <h4 className="text-yellow-300 font-bold mb-3 capitalize">{type}</h4>
-                          <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto">
-                            {COSMETICS[type].map(item => (
-                              <button
-                                key={item.id}
-                                onClick={() => setSelectedCosmetic({ ...item, type: type.slice(0, -1) })}
-                                className={`p-3 rounded-lg border transition-all text-left ${
-                                  selectedCosmetic?.id === item.id && selectedCosmetic?.type === type.slice(0, -1)
-                                    ? 'bg-yellow-600 border-yellow-400'
-                                    : 'bg-black/40 border-yellow-500/30 hover:border-yellow-400/50'
-                                }`}
-                              >
-                                <div className="text-2xl mb-1">{item.emoji || item.display || '🎨'}</div>
-                                <div className={`text-xs font-bold ${getRarityColor(item.rarity)}`}>
-                                  {item.name}
-                                </div>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    {selectedCosmetic && (
-                      <div className="bg-yellow-900/30 rounded-lg p-4 border border-yellow-500/50 mb-4">
-                        <p className="text-yellow-300">
-                          Selected: <span className="font-bold">{selectedCosmetic.name}</span> ({selectedCosmetic.type})
-                        </p>
-                      </div>
-                    )}
-                    
-                    <button
-                      onClick={ownerGiveCosmetic}
-                      disabled={!targetUsername || !selectedCosmetic}
-                      className="w-full bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500 disabled:from-gray-600 disabled:to-gray-700 text-white font-bold py-3 rounded-lg transition-all disabled:cursor-not-allowed"
-                    >
-                      🎁 GIVE COSMETIC
-                    </button>
-                  </div>
-                </div>
-              )}
-              
-              {/* Players tab */}
-              {ownerTab === 'players' && (
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-yellow-400 font-bold text-xl flex items-center gap-2">
-                      <Users className="w-6 h-6" />
-                      ALL PLAYERS ({allPlayers.length})
-                    </h3>
-                    <button
-                      onClick={loadAllPlayers}
-                      className="bg-yellow-600 hover:bg-yellow-500 px-4 py-2 rounded font-bold transition-all flex items-center gap-2"
-                    >
-                      <RefreshCw className="w-4 h-4" />
-                      REFRESH
-                    </button>
-                  </div>
-                  
-                  <div className="bg-black/50 rounded-lg border border-yellow-500/30 max-h-[600px] overflow-y-auto">
-                    {allPlayers.map((player, index) => (
-                      <div
-                        key={player.playerId}
-                        className="p-4 border-b border-yellow-500/20 hover:bg-yellow-900/20 transition-all"
-                      >
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <div className="font-bold text-lg text-white">{player.playerName}</div>
-                            <div className="text-xs text-yellow-400/70">ID: {player.playerId}</div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-sm text-cyan-300">Level {player.level}</div>
-                            <div className="text-xs text-purple-300">Prestige {player.prestige}</div>
-                          </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-3 gap-2 text-xs mb-3">
-                          <div>
-                            <span className="text-yellow-400/70">Cookies:</span>
-                            <div className="font-bold">{formatNumber(player.cookies)}</div>
-                          </div>
-                          <div>
-                            <span className="text-yellow-400/70">Total:</span>
-                            <div className="font-bold">{formatNumber(player.totalCookiesEarned)}</div>
-                          </div>
-                          <div>
-                            <span className="text-yellow-400/70">Clicks:</span>
-                            <div className="font-bold">{player.totalClicks?.toLocaleString()}</div>
-                          </div>
-                        </div>
-                        
-                        <div className="flex gap-2">
-                          <button
-                            onClick={async () => {
-                              const amount = prompt('Enter cookie amount to add:');
-                              if (amount) {
-                                await api.updatePlayer(player.playerId, {
-                                  cookies: player.cookies + parseInt(amount)
-                                });
-                                loadAllPlayers();
-                              }
-                            }}
-                            className="flex-1 bg-green-600 hover:bg-green-500 px-3 py-1 rounded text-xs font-bold transition-all"
-                          >
-                            Add Cookies
-                          </button>
-                          <button
-                            onClick={async () => {
-                              const level = prompt('Set level:');
-                              if (level) {
-                                await api.updatePlayer(player.playerId, { level: parseInt(level) });
-                                loadAllPlayers();
-                              }
-                            }}
-                            className="flex-1 bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded text-xs font-bold transition-all"
-                          >
-                            Set Level
-                          </button>
-                          <button
-                            onClick={async () => {
-                              if (confirm(`Delete ${player.playerName}?`)) {
-                                await api.deletePlayer(player.playerId);
-                                loadAllPlayers();
-                              }
-                            }}
-                            className="flex-1 bg-red-600 hover:bg-red-500 px-3 py-1 rounded text-xs font-bold transition-all"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {/* Advanced tab */}
-              {ownerTab === 'advanced' && (
-                <div className="space-y-4">
-                  <div className="bg-black/50 rounded-lg p-6 border border-yellow-500/30">
-                    <h3 className="text-yellow-400 font-bold mb-4 text-xl flex items-center gap-2">
-                      <Code className="w-6 h-6" />
-                      ADVANCED COMMANDS
-                    </h3>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-yellow-400 mb-2 font-semibold">Custom Cookie Amount:</label>
-                        <div className="flex gap-2">
-                          <input
-                            type="number"
-                            id="custom-cookies"
-                            className="flex-1 bg-black/50 border-2 border-yellow-500/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-yellow-400"
-                            placeholder="Enter amount"
-                          />
-                          <button
-                            onClick={() => {
-                              const val = document.getElementById('custom-cookies').value;
-                              if (val) ownerSetCookies(parseInt(val));
-                            }}
-                            className="bg-yellow-600 hover:bg-yellow-500 px-4 py-2 rounded font-bold transition-all"
-                          >
-                            SET
-                          </button>
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-yellow-400 mb-2 font-semibold">Custom CPS:</label>
-                        <div className="flex gap-2">
-                          <input
-                            type="number"
-                            id="custom-cps"
-                            className="flex-1 bg-black/50 border-2 border-yellow-500/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-yellow-400"
-                            placeholder="Enter CPS"
-                          />
-                          <button
-                            onClick={() => {
-                              const val = document.getElementById('custom-cps').value;
-                              if (val) ownerSetCPS(parseInt(val));
-                            }}
-                            className="bg-cyan-600 hover:bg-cyan-500 px-4 py-2 rounded font-bold transition-all"
-                          >
-                            SET
-                          </button>
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-yellow-400 mb-2 font-semibold">Custom CPC:</label>
-                        <div className="flex gap-2">
-                          <input
-                            type="number"
-                            id="custom-cpc"
-                            className="flex-1 bg-black/50 border-2 border-yellow-500/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-yellow-400"
-                            placeholder="Enter CPC"
-                          />
-                          <button
-                            onClick={() => {
-                              const val = document.getElementById('custom-cpc').value;
-                              if (val) ownerSetCPC(parseInt(val));
-                            }}
-                            className="bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded font-bold transition-all"
-                          >
-                            SET
-                          </button>
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-yellow-400 mb-2 font-semibold">Custom Level:</label>
-                        <div className="flex gap-2">
-                          <input
-                            type="number"
-                            id="custom-level"
-                            className="flex-1 bg-black/50 border-2 border-yellow-500/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-yellow-400"
-                            placeholder="Enter level"
-                          />
-                          <button
-                            onClick={() => {
-                              const val = document.getElementById('custom-level').value;
-                              if (val) ownerSetLevel(parseInt(val));
-                            }}
-                            className="bg-green-600 hover:bg-green-500 px-4 py-2 rounded font-bold transition-all"
-                          >
-                            SET
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-6 p-4 bg-red-900/30 border border-red-500/50 rounded-lg">
-                      <h4 className="text-red-400 font-bold mb-3">DANGER ZONE</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        <button
-                          onClick={() => {
-                            if (confirm('Wipe ALL player data from database?')) {
-                              // This would call backend endpoint to wipe all data
-                              createNotification('⚠️ This requires backend implementation');
-                            }
-                          }}
-                          className="bg-red-700 hover:bg-red-600 px-4 py-2 rounded font-bold transition-all"
-                        >
-                          WIPE ALL PLAYER DATA
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (confirm('Reset leaderboard?')) {
-                              setLeaderboard([]);
-                              createNotification('🔧 Leaderboard cleared (client-side)');
-                            }
-                          }}
-                          className="bg-red-700 hover:bg-red-600 px-4 py-2 rounded font-bold transition-all"
-                        >
-                          RESET LEADERBOARD
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-      
-      {/* Cosmetics menu */}
-      {showCosmeticsMenu && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-40 overflow-y-auto p-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-gradient-to-br from-purple-900/60 to-pink-900/60 rounded-2xl border-2 border-pink-500/50 p-6 backdrop-blur-xl">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-4xl font-black text-pink-400 flex items-center gap-3">
-                  <Palette className="w-10 h-10" />
-                  COSMETICS
-                </h2>
-                <button
-                  onClick={() => setShowCosmeticsMenu(false)}
-                  className="text-pink-400 hover:text-pink-300 transition-colors"
-                >
-                  <X className="w-8 h-8" />
-                </button>
-              </div>
-              
-              {/* Cookie skins */}
-              <div className="mb-6">
-                <h3 className="text-2xl font-bold text-cyan-400 mb-3">COOKIE SKINS</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {COSMETICS.cookies.map(cookie => {
-                    const owned = ownedCosmetics.cookies.includes(cookie.id);
-                    const equipped = equippedCosmetics.cookie === cookie.id;
-                    return (
-                      <button
-                        key={cookie.id}
-                        onClick={() => owned && equipCosmetic('cookie', cookie.id)}
-                        disabled={!owned}
-                        className={`p-4 rounded-lg border-2 transition-all ${
-                          equipped
-                            ? 'bg-gradient-to-br from-pink-600/40 to-purple-600/40 border-pink-500 scale-105'
-                            : owned
-                            ? `bg-black/40 ${getRarityBorder(cookie.rarity)} hover:scale-105`
-                            : 'bg-black/20 border-gray-700 opacity-40 cursor-not-allowed'
-                        }`}
-                      >
-                        <div className="text-5xl mb-2">{cookie.emoji}</div>
-                        <div className={`text-sm font-bold ${getRarityColor(cookie.rarity)}`}>
-                          {cookie.name}
-                        </div>
-                        {!owned && <div className="text-xs text-gray-500 mt-1">🔒 Locked</div>}
-                        {equipped && <div className="text-xs text-pink-400 mt-1">✓ Equipped</div>}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-              
-              {/* Themes */}
-              <div className="mb-6">
-                <h3 className="text-2xl font-bold text-cyan-400 mb-3">THEMES</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {COSMETICS.themes.map(theme => {
-                    const owned = ownedCosmetics.themes.includes(theme.id);
-                    const equipped = equippedCosmetics.theme === theme.id;
-                    return (
-                      <button
-                        key={theme.id}
-                        onClick={() => owned && equipCosmetic('theme', theme.id)}
-                        disabled={!owned}
-                        className={`p-4 rounded-lg border-2 transition-all overflow-hidden relative ${
-                          equipped
-                            ? 'border-pink-500 scale-105'
-                            : owned
-                            ? `${getRarityBorder(theme.rarity)} hover:scale-105`
-                            : 'border-gray-700 opacity-40 cursor-not-allowed'
-                        }`}
-                      >
-                        <div className={`absolute inset-0 bg-gradient-to-br ${theme.gradient}`} />
-                        <div className="relative z-10">
-                          <div className={`text-sm font-bold ${getRarityColor(theme.rarity)}`}>
-                            {theme.name}
-                          </div>
-                          {!owned && <div className="text-xs text-gray-500 mt-1">🔒 Locked</div>}
-                          {equipped && <div className="text-xs text-pink-400 mt-1">✓ Equipped</div>}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-              
-              {/* Titles */}
-              <div>
-                <h3 className="text-2xl font-bold text-cyan-400 mb-3">TITLES</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {COSMETICS.titles.map(title => {
-                    const owned = ownedCosmetics.titles.includes(title.id);
-                    const equipped = equippedCosmetics.title === title.id;
-                    return (
-                      <button
-                        key={title.id}
-                        onClick={() => owned && equipCosmetic('title', title.id)}
-                        disabled={!owned}
-                        className={`p-4 rounded-lg border-2 transition-all text-left ${
-                          equipped
-                            ? 'bg-gradient-to-br from-pink-600/40 to-purple-600/40 border-pink-500 scale-105'
-                            : owned
-                            ? `bg-black/40 ${getRarityBorder(title.rarity)} hover:scale-105`
-                            : 'bg-black/20 border-gray-700 opacity-40 cursor-not-allowed'
-                        }`}
-                      >
-                        <div className={`font-bold text-lg ${getRarityColor(title.rarity)} mb-1`}>
-                          {title.display || title.name}
-                        </div>
-                        <div className="text-xs text-gray-400">{title.name}</div>
-                        {!owned && <div className="text-xs text-gray-500 mt-1">🔒 Locked</div>}
-                        {equipped && <div className="text-xs text-pink-400 mt-1">✓ Equipped</div>}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-      
       {/* Main game content */}
       <div className="relative z-10 max-w-7xl mx-auto p-4">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-6xl md:text-7xl font-black mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400"
+          <h1 className="text-5xl md:text-6xl font-black mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400"
               style={{ fontFamily: 'Impact, sans-serif', textShadow: '0 0 30px rgba(168, 85, 247, 0.5)' }}>
             COOKIE EMPIRE
           </h1>
           <div className="text-cyan-300 text-lg" style={{ fontFamily: 'Courier New, monospace' }}>
             {equippedTitle.display && <span className="mr-2">{equippedTitle.display}</span>}
             <span className="text-pink-400 font-bold">{playerName}</span>
+          </div>
+          <div className="text-red-400 text-sm mt-1">
+            💀 HARDCORE MODE • {criticalFails} Critical Fails
           </div>
         </div>
         
@@ -1541,7 +1085,15 @@ function UltimateCookieEmpire() {
             className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 px-6 py-3 rounded-lg font-bold flex items-center gap-2 transition-all transform hover:scale-105 shadow-lg border border-purple-500/50"
           >
             <Palette className="w-5 h-5" />
-            COSMETICS
+            WARDROBE
+          </button>
+          
+          <button
+            onClick={() => setShowCosmeticsShop(true)}
+            className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 px-6 py-3 rounded-lg font-bold flex items-center gap-2 transition-all transform hover:scale-105 shadow-lg border border-cyan-500/50"
+          >
+            <DollarSign className="w-5 h-5" />
+            SHOP
           </button>
           
           {isOwner && (
@@ -1555,7 +1107,322 @@ function UltimateCookieEmpire() {
           )}
         </div>
         
-        {/* Leaderboard modal */}
+        {/* COSMETICS SHOP MODAL - NEW */}
+        {showCosmeticsShop && (
+          <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-40 overflow-y-auto p-4">
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-gradient-to-br from-cyan-900/60 to-blue-900/60 rounded-2xl border-2 border-cyan-500/50 p-6 backdrop-blur-xl">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-4xl font-black text-cyan-400 flex items-center gap-3">
+                    <DollarSign className="w-10 h-10" />
+                    COSMETICS SHOP
+                  </h2>
+                  <button
+                    onClick={() => setShowCosmeticsShop(false)}
+                    className="text-cyan-400 hover:text-cyan-300 transition-colors"
+                  >
+                    <X className="w-8 h-8" />
+                  </button>
+                </div>
+                
+                <div className="mb-4 text-center">
+                  <div className="text-2xl font-bold text-yellow-400">
+                    Your Cookies: {formatNumber(cookies)} 🍪
+                  </div>
+                </div>
+                
+                {/* Cookie skins for sale */}
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold text-cyan-400 mb-3">COOKIE SKINS</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {COSMETICS.cookies.map(cookie => {
+                      const owned = ownedCosmetics.cookies.includes(cookie.id);
+                      const canAfford = cookies >= cookie.cost;
+                      return (
+                        <button
+                          key={cookie.id}
+                          onClick={() => !owned && canAfford && buyCosmetic('cookie', cookie)}
+                          disabled={owned || !canAfford}
+                          className={`p-4 rounded-lg border-2 transition-all ${
+                            owned
+                              ? 'bg-green-900/40 border-green-500 cursor-not-allowed'
+                              : canAfford
+                              ? `bg-black/40 ${getRarityBorder(cookie.rarity)} hover:scale-105 cursor-pointer`
+                              : 'bg-black/20 border-gray-700 opacity-40 cursor-not-allowed'
+                          }`}
+                        >
+                          <div className="text-5xl mb-2">{cookie.emoji}</div>
+                          <div className={`text-sm font-bold ${getRarityColor(cookie.rarity)}`}>
+                            {cookie.name}
+                          </div>
+                          <div className="text-xs text-yellow-400 mt-1">
+                            {cookie.cost === 0 ? 'FREE' : formatNumber(cookie.cost) + ' 🍪'}
+                          </div>
+                          {owned && <div className="text-xs text-green-400 mt-1">✓ OWNED</div>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                
+                {/* Themes for sale */}
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold text-cyan-400 mb-3">THEMES</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {COSMETICS.themes.map(theme => {
+                      const owned = ownedCosmetics.themes.includes(theme.id);
+                      const canAfford = cookies >= theme.cost;
+                      return (
+                        <button
+                          key={theme.id}
+                          onClick={() => !owned && canAfford && buyCosmetic('theme', theme)}
+                          disabled={owned || !canAfford}
+                          className={`p-4 rounded-lg border-2 transition-all overflow-hidden relative ${
+                            owned
+                              ? 'border-green-500 cursor-not-allowed'
+                              : canAfford
+                              ? `${getRarityBorder(theme.rarity)} hover:scale-105 cursor-pointer`
+                              : 'border-gray-700 opacity-40 cursor-not-allowed'
+                          }`}
+                        >
+                          <div className={`absolute inset-0 bg-gradient-to-br ${theme.gradient}`} />
+                          <div className="relative z-10">
+                            <div className={`text-sm font-bold ${getRarityColor(theme.rarity)} mb-1`}>
+                              {theme.name}
+                            </div>
+                            <div className="text-xs text-yellow-400 mt-1">
+                              {theme.cost === 0 ? 'FREE' : formatNumber(theme.cost) + ' 🍪'}
+                            </div>
+                            {owned && <div className="text-xs text-green-400 mt-1">✓ OWNED</div>}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                
+                {/* Effects for sale */}
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold text-cyan-400 mb-3">EFFECTS</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    {COSMETICS.effects.map(effect => {
+                      const owned = ownedCosmetics.effects.includes(effect.id);
+                      const canAfford = cookies >= effect.cost;
+                      return (
+                        <button
+                          key={effect.id}
+                          onClick={() => !owned && canAfford && buyCosmetic('effect', effect)}
+                          disabled={owned || !canAfford}
+                          className={`p-4 rounded-lg border-2 transition-all ${
+                            owned
+                              ? 'bg-green-900/40 border-green-500 cursor-not-allowed'
+                              : canAfford
+                              ? `bg-black/40 ${getRarityBorder(effect.rarity)} hover:scale-105 cursor-pointer`
+                              : 'bg-black/20 border-gray-700 opacity-40 cursor-not-allowed'
+                          }`}
+                        >
+                          <div className={`text-sm font-bold ${getRarityColor(effect.rarity)} mb-1`}>
+                            {effect.name}
+                          </div>
+                          <div className="text-xs text-yellow-400 mt-1">
+                            {effect.cost === 0 ? 'FREE' : formatNumber(effect.cost) + ' 🍪'}
+                          </div>
+                          {owned && <div className="text-xs text-green-400 mt-1">✓ OWNED</div>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                
+                {/* Titles for sale */}
+                <div>
+                  <h3 className="text-2xl font-bold text-cyan-400 mb-3">TITLES</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {COSMETICS.titles.map(title => {
+                      const owned = ownedCosmetics.titles.includes(title.id);
+                      const canAfford = cookies >= title.cost;
+                      return (
+                        <button
+                          key={title.id}
+                          onClick={() => !owned && canAfford && buyCosmetic('title', title)}
+                          disabled={owned || !canAfford}
+                          className={`p-4 rounded-lg border-2 transition-all text-left ${
+                            owned
+                              ? 'bg-green-900/40 border-green-500 cursor-not-allowed'
+                              : canAfford
+                              ? `bg-black/40 ${getRarityBorder(title.rarity)} hover:scale-105 cursor-pointer`
+                              : 'bg-black/20 border-gray-700 opacity-40 cursor-not-allowed'
+                          }`}
+                        >
+                          <div className={`font-bold text-lg ${getRarityColor(title.rarity)} mb-1`}>
+                            {title.display || title.name}
+                          </div>
+                          <div className="text-xs text-yellow-400 mt-1">
+                            {title.cost === 0 ? 'FREE' : formatNumber(title.cost) + ' 🍪'}
+                          </div>
+                          {owned && <div className="text-xs text-green-400 mt-1">✓ OWNED</div>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* WARDROBE MODAL */}
+        {showCosmeticsMenu && (
+          <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-40 overflow-y-auto p-4">
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-gradient-to-br from-purple-900/60 to-pink-900/60 rounded-2xl border-2 border-pink-500/50 p-6 backdrop-blur-xl">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-4xl font-black text-pink-400 flex items-center gap-3">
+                    <Palette className="w-10 h-10" />
+                    WARDROBE
+                  </h2>
+                  <button
+                    onClick={() => setShowCosmeticsMenu(false)}
+                    className="text-pink-400 hover:text-pink-300 transition-colors"
+                  >
+                    <X className="w-8 h-8" />
+                  </button>
+                </div>
+                
+                {/* Cookie skins */}
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold text-cyan-400 mb-3">COOKIE SKINS</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {COSMETICS.cookies.map(cookie => {
+                      const owned = ownedCosmetics.cookies.includes(cookie.id);
+                      const equipped = equippedCosmetics.cookie === cookie.id;
+                      return (
+                        <button
+                          key={cookie.id}
+                          onClick={() => owned && equipCosmetic('cookie', cookie.id)}
+                          disabled={!owned}
+                          className={`p-4 rounded-lg border-2 transition-all ${
+                            equipped
+                              ? 'bg-gradient-to-br from-pink-600/40 to-purple-600/40 border-pink-500 scale-105'
+                              : owned
+                              ? `bg-black/40 ${getRarityBorder(cookie.rarity)} hover:scale-105`
+                              : 'bg-black/20 border-gray-700 opacity-40 cursor-not-allowed'
+                          }`}
+                        >
+                          <div className="text-5xl mb-2">{cookie.emoji}</div>
+                          <div className={`text-sm font-bold ${getRarityColor(cookie.rarity)}`}>
+                            {cookie.name}
+                          </div>
+                          {!owned && <div className="text-xs text-gray-500 mt-1">🔒 Locked</div>}
+                          {equipped && <div className="text-xs text-pink-400 mt-1">✓ Equipped</div>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                
+                {/* Themes */}
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold text-cyan-400 mb-3">THEMES</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {COSMETICS.themes.map(theme => {
+                      const owned = ownedCosmetics.themes.includes(theme.id);
+                      const equipped = equippedCosmetics.theme === theme.id;
+                      return (
+                        <button
+                          key={theme.id}
+                          onClick={() => owned && equipCosmetic('theme', theme.id)}
+                          disabled={!owned}
+                          className={`p-4 rounded-lg border-2 transition-all overflow-hidden relative ${
+                            equipped
+                              ? 'border-pink-500 scale-105'
+                              : owned
+                              ? `${getRarityBorder(theme.rarity)} hover:scale-105`
+                              : 'border-gray-700 opacity-40 cursor-not-allowed'
+                          }`}
+                        >
+                          <div className={`absolute inset-0 bg-gradient-to-br ${theme.gradient}`} />
+                          <div className="relative z-10">
+                            <div className={`text-sm font-bold ${getRarityColor(theme.rarity)}`}>
+                              {theme.name}
+                            </div>
+                            {!owned && <div className="text-xs text-gray-500 mt-1">🔒 Locked</div>}
+                            {equipped && <div className="text-xs text-pink-400 mt-1">✓ Equipped</div>}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                
+                {/* Effects */}
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold text-cyan-400 mb-3">EFFECTS</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    {COSMETICS.effects.map(effect => {
+                      const owned = ownedCosmetics.effects.includes(effect.id);
+                      const equipped = equippedCosmetics.effect === effect.id;
+                      return (
+                        <button
+                          key={effect.id}
+                          onClick={() => owned && equipCosmetic('effect', effect.id)}
+                          disabled={!owned}
+                          className={`p-4 rounded-lg border-2 transition-all ${
+                            equipped
+                              ? 'bg-gradient-to-br from-pink-600/40 to-purple-600/40 border-pink-500 scale-105'
+                              : owned
+                              ? `bg-black/40 ${getRarityBorder(effect.rarity)} hover:scale-105`
+                              : 'bg-black/20 border-gray-700 opacity-40 cursor-not-allowed'
+                          }`}
+                        >
+                          <div className={`text-sm font-bold ${getRarityColor(effect.rarity)}`}>
+                            {effect.name}
+                          </div>
+                          {!owned && <div className="text-xs text-gray-500 mt-1">🔒 Locked</div>}
+                          {equipped && <div className="text-xs text-pink-400 mt-1">✓ Equipped</div>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                
+                {/* Titles */}
+                <div>
+                  <h3 className="text-2xl font-bold text-cyan-400 mb-3">TITLES</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {COSMETICS.titles.map(title => {
+                      const owned = ownedCosmetics.titles.includes(title.id);
+                      const equipped = equippedCosmetics.title === title.id;
+                      return (
+                        <button
+                          key={title.id}
+                          onClick={() => owned && equipCosmetic('title', title.id)}
+                          disabled={!owned}
+                          className={`p-4 rounded-lg border-2 transition-all text-left ${
+                            equipped
+                              ? 'bg-gradient-to-br from-pink-600/40 to-purple-600/40 border-pink-500 scale-105'
+                              : owned
+                              ? `bg-black/40 ${getRarityBorder(title.rarity)} hover:scale-105`
+                              : 'bg-black/20 border-gray-700 opacity-40 cursor-not-allowed'
+                          }`}
+                        >
+                          <div className={`font-bold text-lg ${getRarityColor(title.rarity)} mb-1`}>
+                            {title.display || title.name}
+                          </div>
+                          <div className="text-xs text-gray-400">{title.name}</div>
+                          {!owned && <div className="text-xs text-gray-500 mt-1">🔒 Locked</div>}
+                          {equipped && <div className="text-xs text-pink-400 mt-1">✓ Equipped</div>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* LEADERBOARD MODAL */}
         {showLeaderboard && (
           <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-40 flex items-center justify-center p-4">
             <div className="bg-gradient-to-br from-purple-900/70 to-cyan-900/70 rounded-2xl border-2 border-cyan-500/50 p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto backdrop-blur-xl">
@@ -1581,7 +1448,7 @@ function UltimateCookieEmpire() {
                 <div className="space-y-3">
                   {leaderboard.length === 0 ? (
                     <div className="text-center py-20 text-cyan-300">
-                      No players yet. Be the first!
+                      No players yet. Be the first survivor!
                     </div>
                   ) : (
                     leaderboard.map((player, index) => (
@@ -1683,7 +1550,7 @@ function UltimateCookieEmpire() {
               )}
               
               {/* Click streak */}
-              {clickStreak > 5 && (
+              {clickStreak > 10 && (
                 <div className="mt-3 text-center">
                   <div className="inline-block bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2 rounded-lg border border-red-400/50 animate-pulse">
                     <Flame className="inline w-5 h-5 mr-2" />
@@ -1709,6 +1576,9 @@ function UltimateCookieEmpire() {
               <div className="mt-6 text-2xl font-bold text-cyan-300">
                 TAP TO EARN {formatNumber(cookiesPerClick * getPrestigeMultiplier())} COOKIES
               </div>
+              <div className="mt-2 text-sm text-red-400">
+                ⚠️ {(criticalFailChance * 100).toFixed(1)}% chance to lose 10% of cookies!
+              </div>
             </div>
             
             {/* Achievements */}
@@ -1717,7 +1587,7 @@ function UltimateCookieEmpire() {
                 <Trophy className="w-8 h-8" />
                 ACHIEVEMENTS ({achievements.filter(a => a.unlocked).length}/{achievements.length})
               </h2>
-              <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
+              <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
                 {achievements.map(ach => (
                   <div
                     key={ach.id}
@@ -1726,10 +1596,15 @@ function UltimateCookieEmpire() {
                         ? 'bg-gradient-to-br from-yellow-600/40 to-orange-600/40 border-yellow-500/50 shadow-lg'
                         : 'bg-black/40 border-gray-700/50 opacity-50'
                     }`}
-                    title={ach.desc}
+                    title={`${ach.desc} - Reward: ${formatNumber(ach.reward)} cookies`}
                   >
                     <div className="text-4xl text-center mb-2">{ach.icon}</div>
                     <div className="text-xs text-center font-bold text-white">{ach.name}</div>
+                    {ach.unlocked && (
+                      <div className="text-xs text-center text-yellow-400 mt-1">
+                        +{formatNumber(ach.reward)}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -1785,11 +1660,11 @@ function UltimateCookieEmpire() {
                 PRESTIGE
               </h2>
               
-              {level >= 10 ? (
+              {level >= 25 ? (
                 <>
                   <div className="mb-4 text-center">
                     <div className="text-sm text-cyan-300 mb-2">
-                      Reset progress for {Math.floor(level / 5)} prestige tokens
+                      Reset progress for {Math.floor(level / 10)} prestige tokens
                     </div>
                     <button
                       onClick={doPrestige}
@@ -1843,8 +1718,9 @@ function UltimateCookieEmpire() {
               ) : (
                 <div className="text-center text-cyan-300">
                   <Lock className="w-16 h-16 mx-auto mb-3 opacity-50" />
-                  <p className="text-sm">Reach level 10 to unlock prestige</p>
-                  <p className="text-xs opacity-70 mt-1">({10 - level} levels to go)</p>
+                  <p className="text-sm">Reach level 25 to unlock prestige</p>
+                  <p className="text-xs opacity-70 mt-1">({25 - level} levels to go)</p>
+                  <p className="text-xs text-red-400 mt-2">⚠️ HARDCORE MODE: Level 25 required!</p>
                 </div>
               )}
             </div>
