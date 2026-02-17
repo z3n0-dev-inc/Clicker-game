@@ -1309,14 +1309,15 @@ function UltimateCookieEmpire() {
                 💀 {(criticalFailChance * 100).toFixed(1)}%
               </div>
             )}
-            {currentMode?.id !== 'classic' && (
+                        {currentMode?.id !== 'classic' && currentMode && (
               <div className="text-xs font-bold px-2 py-1 rounded" style={{ 
-                backgroundColor: equippedTheme.accent,
+                backgroundColor: equippedTheme?.accent || '#8b5cf6',
                 fontFamily: 'system-ui'
               }}>
-                {currentMode.icon} {currentMode.name}
+                {currentMode?.icon || '🎮'} {currentMode?.name || 'Classic'}
               </div>
             )}
+
           </div>
           
           <div className="flex items-center gap-2">
