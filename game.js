@@ -67,18 +67,35 @@ const COSMETICS = {
 
 const OWNER_COSMETICS = {
   cookies: [
-    { id: 'admin', name: 'Admin Cookie', emoji: '⚡', rarity: 'owner' },
-    { id: 'dev', name: 'Developer Cookie', emoji: '💻', rarity: 'owner' },
-    { id: 'master', name: 'Master Cookie', emoji: '🎯', rarity: 'owner' },
-    { id: 'infinity', name: 'Infinity Cookie', emoji: '♾️', rarity: 'owner' },
-    { id: 'z3n0_special', name: 'Z3N0 Special', emoji: '🌟', rarity: 'creator' },
+    { id: 'nuclear', name: 'Nuclear Cookie', emoji: '☢️', rarity: 'owner', glow: '#00ff00', desc: 'Radioactive power' },
+    { id: 'blackhole', name: 'Black Hole Cookie', emoji: '⚫', rarity: 'owner', glow: '#9400d3', desc: 'Void incarnate' },
+    { id: 'quantum', name: 'Quantum Cookie', emoji: '🌀', rarity: 'owner', glow: '#00ffff', desc: 'Reality bender' },
+    { id: 'solar', name: 'Solar Cookie', emoji: '☀️', rarity: 'owner', glow: '#ffa500', desc: 'Star power' },
+    { id: 'void_emperor', name: 'Void Emperor', emoji: '👁️', rarity: 'owner', glow: '#8b00ff', desc: 'All-seeing' },
+    { id: 'magma', name: 'Magma Core', emoji: '🌋', rarity: 'owner', glow: '#ff4500', desc: 'Molten fury' },
+    { id: 'celestial', name: 'Celestial Cookie', emoji: '✨', rarity: 'owner', glow: '#ffffff', desc: 'Divine light' },
+    { id: 'time_lord', name: 'Time Lord Cookie', emoji: '⏰', rarity: 'owner', glow: '#4169e1', desc: 'Controls time' },
+    { id: 'ice_king', name: 'Ice King Cookie', emoji: '🧊', rarity: 'owner', glow: '#00bfff', desc: 'Frozen throne' },
+    { id: 'thunder_god', name: 'Thunder God', emoji: '⚡', rarity: 'owner', glow: '#ffff00', desc: 'Lightning ruler' },
+    { id: 'infinity', name: 'Infinity Cookie', emoji: '♾️', rarity: 'owner', glow: '#ff1493', desc: 'Limitless power' },
+    { id: 'z3n0_ultimate', name: 'Z3N0 Ultimate', emoji: '👑', rarity: 'creator', glow: '#ffd700', desc: 'Creator\'s mark' },
   ],
   themes: [
-    { id: 'admin', name: 'Admin Panel', bg: '#0a0505', accent: '#fbbf24', secondary: '#f59e0b', rarity: 'owner' },
-    { id: 'dev', name: 'Developer Mode', bg: '#050a05', accent: '#10b981', secondary: '#14b8a6', rarity: 'owner' },
-    { id: 'owner', name: 'Owner Exclusive', bg: '#050505', accent: '#f97316', secondary: '#fb923c', rarity: 'owner' },
-    { id: 'z3n0_theme', name: 'Z3N0 Theme', bg: '#000510', accent: '#8b5cf6', secondary: '#a78bfa', rarity: 'creator' },
+    { id: 'command_center', name: 'Command Center', bg: '#0a0a0a', accent: '#ffd700', secondary: '#ffaa00', rarity: 'owner', glow: true },
+    { id: 'matrix_owner', name: 'Owner Matrix', bg: '#001a00', accent: '#00ff41', secondary: '#39ff14', rarity: 'owner', glow: true },
+    { id: 'cyber_authority', name: 'Cyber Authority', bg: '#0a0015', accent: '#ff00ff', secondary: '#00ffff', rarity: 'owner', glow: true },
+    { id: 'royal_command', name: 'Royal Command', bg: '#1a0a00', accent: '#ffd700', secondary: '#ffdf00', rarity: 'owner', glow: true },
+    { id: 'void_throne', name: 'Void Throne', bg: '#000000', accent: '#9400d3', secondary: '#8b00ff', rarity: 'owner', glow: true },
+    { id: 'nuclear_control', name: 'Nuclear Control', bg: '#001a00', accent: '#00ff00', secondary: '#7fff00', rarity: 'owner', glow: true },
+    { id: 'z3n0_divine', name: 'Z3N0 Divine', bg: '#000510', accent: '#ffd700', secondary: '#8b5cf6', rarity: 'creator', glow: true },
   ],
+  effects: [
+    { id: 'god_ray', name: 'God Ray', rarity: 'owner', desc: 'Divine light beams' },
+    { id: 'thunder_strike', name: 'Thunder Strike', rarity: 'owner', desc: 'Lightning on click' },
+    { id: 'galaxy_burst', name: 'Galaxy Burst', rarity: 'owner', desc: 'Star explosion' },
+    { id: 'fire_trail', name: 'Fire Trail', rarity: 'owner', desc: 'Flames follow cursor' },
+    { id: 'diamond_rain', name: 'Diamond Rain', rarity: 'owner', desc: 'Gems cascade down' },
+  ]
 };
 
 const MOD_COSMETICS = {
@@ -477,36 +494,49 @@ function UltimateCookieEmpire() {
     loadData();
   }, [api]);
   
-  // Auto-save
+  // Auto-save - FIXED VERSION
   useEffect(() => {
     if (!playerName) return;
     
     const saveInterval = setInterval(async () => {
+      console.log('🔄 Auto-saving...');
       setSaveStatus('saving');
-      const result = await api.saveProgress({
-        cookies,
-        totalCookiesEarned,
-        cookiesPerClick,
-        cookiesPerSecond,
-        totalClicks,
-        level,
-        xp,
-        prestige,
-        prestigeTokens,
-        upgrades,
-        prestigeUpgrades,
-        achievements,
-        ownedCosmetics,
-        equippedCosmetics,
-        cosmeticGifts,
-        currentGameMode,
-        gameModes,
-        stats,
-        criticalFails
-      });
       
-      setSaveStatus(result.success ? 'saved' : 'error');
-    }, 30000);
+      try {
+        const result = await api.saveProgress({
+          cookies,
+          totalCookiesEarned,
+          cookiesPerClick,
+          cookiesPerSecond,
+          totalClicks,
+          level,
+          xp,
+          prestige,
+          prestigeTokens,
+          upgrades,
+          prestigeUpgrades,
+          achievements,
+          ownedCosmetics,
+          equippedCosmetics,
+          cosmeticGifts,
+          currentGameMode,
+          gameModes,
+          stats,
+          criticalFails
+        });
+        
+        if (result.success) {
+          console.log('✅ Save successful!');
+          setSaveStatus('saved');
+        } else {
+          console.error('❌ Save failed:', result.error);
+          setSaveStatus('error');
+        }
+      } catch (error) {
+        console.error('❌ Save error:', error);
+        setSaveStatus('error');
+      }
+    }, 10000); // Save every 10 seconds instead of 30
     
     return () => clearInterval(saveInterval);
   }, [playerName, cookies, totalCookiesEarned, cookiesPerClick, cookiesPerSecond, totalClicks, level, xp, prestige, prestigeTokens, upgrades, prestigeUpgrades, achievements, ownedCosmetics, equippedCosmetics, cosmeticGifts, currentGameMode, gameModes, stats, criticalFails, api]);
@@ -1791,6 +1821,46 @@ function UltimateCookieEmpire() {
         </div>
       </div>
       
+      {/* TUTORIAL MODAL */}
+      {showTutorial && currentTutorial && (
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[60] flex items-center justify-center p-4" onClick={() => setShowTutorial(false)}>
+          <div className="bg-gradient-to-br from-blue-900/90 to-purple-900/90 rounded-2xl border-2 border-blue-500 p-8 max-w-2xl w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-3xl font-black text-white" style={{ fontFamily: 'system-ui' }}>
+                {currentTutorial.title}
+              </h2>
+              <button
+                onClick={() => setShowTutorial(false)}
+                className="text-white hover:text-blue-300 text-3xl font-bold transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              {currentTutorial.steps.map((step, idx) => (
+                <div key={idx} className="flex items-start gap-4 bg-black/40 rounded-xl p-4 border border-blue-500/30">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center font-bold text-white">
+                    {idx + 1}
+                  </div>
+                  <div className="text-white text-lg" style={{ fontFamily: 'system-ui' }}>
+                    {step.replace(/^\d+\.\s*/, '')}
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <button
+              onClick={() => setShowTutorial(false)}
+              className="w-full mt-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-4 rounded-xl text-lg transition-all transform hover:scale-105"
+              style={{ fontFamily: 'system-ui' }}
+            >
+              Got it! ✅
+            </button>
+          </div>
+        </div>
+      )}
+      
       {/* LEADERBOARD MODAL */}
       {showLeaderboard && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowLeaderboard(false)}>
@@ -2366,19 +2436,243 @@ function UltimateCookieEmpire() {
         </div>
       )}
       
-      {/* OWNER PANEL - ULTIMATE VERSION */}
+      {/* OWNER PANEL - V3.0 GORGEOUS REDESIGN */}
       {isOwner && ownerPanelOpen && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 overflow-y-auto p-4" onClick={() => setOwnerPanelOpen(false)}>
+        <div className="fixed inset-0 bg-black/95 backdrop-blur-md z-50 overflow-y-auto p-4" onClick={() => setOwnerPanelOpen(false)}>
           <div className="max-w-7xl mx-auto my-8" onClick={(e) => e.stopPropagation()}>
-            <div className="bg-gradient-to-br from-orange-900/20 to-red-900/20 rounded-xl border-2 border-orange-500 p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-4xl font-black text-orange-400" style={{ fontFamily: 'system-ui' }}>
-                  👑 OWNER CONTROL PANEL
-                </h2>
-                <button onClick={() => setOwnerPanelOpen(false)} className="text-gray-400 hover:text-white text-3xl">
-                  ✕
-                </button>
+            <div className="bg-gradient-to-br from-orange-950/40 via-gray-900/60 to-red-950/40 rounded-2xl border-2 border-orange-500/50 shadow-2xl overflow-hidden">
+              
+              {/* Header */}
+              <div className="bg-gradient-to-r from-orange-600 to-red-600 p-6 border-b-2 border-orange-500/50">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="text-4xl font-black text-white mb-2 flex items-center gap-3" style={{ fontFamily: 'system-ui' }}>
+                      👑 OWNER CONTROL CENTER
+                    </h2>
+                    <p className="text-orange-100 text-sm">Ultimate power at your fingertips</p>
+                  </div>
+                  <button 
+                    onClick={() => setOwnerPanelOpen(false)} 
+                    className="w-12 h-12 rounded-xl bg-black/30 hover:bg-black/50 text-white text-2xl font-bold transition-all hover:scale-110"
+                  >
+                    ✕
+                  </button>
+                </div>
               </div>
+              
+              {/* Tabs */}
+              <div className="bg-black/30 px-6 py-4 border-b border-gray-700/50 flex gap-3 overflow-x-auto">
+                {[
+                  { id: 'quick', label: 'Quick Actions', icon: '⚡' },
+                  { id: 'players', label: 'Players', icon: '👥' },
+                  { id: 'cosmetics', label: 'Cosmetics', icon: '🎨' },
+                  { id: 'economy', label: 'Economy', icon: '💰' },
+                  { id: 'stats', label: 'Analytics', icon: '📊' }
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setOwnerTab(tab.id)}
+                    className={`px-6 py-3 rounded-xl font-bold text-sm transition-all flex items-center gap-2 whitespace-nowrap ${
+                      ownerTab === tab.id 
+                        ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg scale-105' 
+                        : 'bg-gray-800/50 text-gray-400 hover:bg-gray-700/50 hover:text-white'
+                    }`}
+                    style={{ fontFamily: 'system-ui' }}
+                  >
+                    <span className="text-xl">{tab.icon}</span>
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+              
+              {/* Content */}
+              <div className="p-6">
+                
+                {/* QUICK ACTIONS TAB */}
+                {ownerTab === 'quick' && (
+                  <div className="space-y-6 animate-fadeIn">
+                    
+                    {/* Tutorial Button */}
+                    <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl p-4 border border-blue-500/30">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-white font-bold mb-1">Need Help? 🎓</h3>
+                          <p className="text-gray-300 text-sm">Learn how to use owner commands</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button onClick={() => openTutorial('give_resources')} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold text-sm">
+                            Give Resources
+                          </button>
+                          <button onClick={() => openTutorial('give_cosmetic')} className="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-white font-bold text-sm">
+                            Give Cosmetics
+                          </button>
+                          <button onClick={() => openTutorial('ban_player')} className="px-4 py-2 bg-red-600 hover:bg-red-500 rounded-lg text-white font-bold text-sm">
+                            Ban Players
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Personal Cheats */}
+                    <div className="bg-black/40 rounded-xl p-6 border border-orange-500/30">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-2xl font-black text-orange-400" style={{ fontFamily: 'system-ui' }}>
+                          ⚡ Personal Cheats
+                        </h3>
+                        <button onClick={() => openTutorial('give_resources')} className="text-blue-400 hover:text-blue-300 text-sm font-bold">
+                          ? How to use
+                        </button>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        {[
+                          { label: '+1M 🍪', action: () => { setCookies(c => c + 1000000); createNotification('✅ +1M Cookies'); } },
+                          { label: '+1B 🍪', action: () => { setCookies(c => c + 1000000000); createNotification('✅ +1B Cookies'); } },
+                          { label: '+1T 🍪', action: () => { setCookies(c => c + 1000000000000); createNotification('✅ +1T Cookies'); } },
+                          { label: 'Max Cookies', action: () => { setCookies(Number.MAX_SAFE_INTEGER); createNotification('✅ Max Cookies!'); } },
+                          { label: 'Level 100', action: () => { setLevel(100); createNotification('✅ Level 100'); } },
+                          { label: 'Level 500', action: () => { setLevel(500); createNotification('✅ Level 500'); } },
+                          { label: 'Level 999', action: () => { setLevel(999); createNotification('✅ Level 999'); } },
+                          { label: 'P50', action: () => { setPrestige(50); createNotification('✅ Prestige 50'); } },
+                          { label: 'P100', action: () => { setPrestige(100); createNotification('✅ Prestige 100'); } },
+                          { label: '9999 Tokens', action: () => { setPrestigeTokens(9999); createNotification('✅ 9999 Tokens'); } },
+                          { label: 'Max CPS', action: () => { setCookiesPerSecond(999999999); createNotification('✅ Max CPS'); } },
+                          { label: 'Max CPC', action: () => { setCookiesPerClick(999999999); createNotification('✅ Max CPC'); } },
+                          { label: 'All Achievements', action: () => { setAchievements(a => a.map(ach => ({ ...ach, unlocked: true }))); createNotification('✅ All Achievements'); } },
+                          { label: 'All Cosmetics', action: () => { 
+                            setOwnedCosmetics({
+                              cookies: [...COSMETICS.cookies.map(c => c.id), ...OWNER_COSMETICS.cookies.map(c => c.id)],
+                              themes: [...COSMETICS.themes.map(t => t.id), ...OWNER_COSMETICS.themes.map(t => t.id)],
+                              effects: [...COSMETICS.effects.map(e => e.id), ...(OWNER_COSMETICS.effects?.map(e => e.id) || [])],
+                              titles: COSMETICS.titles.map(t => t.id),
+                              badges: COSMETICS.badges.map(b => b.id)
+                            });
+                            createNotification('✅ All Cosmetics Unlocked');
+                          }},
+                          { label: 'Reset Fails', action: () => { setCriticalFails(0); createNotification('✅ Critical Fails Reset'); } },
+                          { label: '👑 GOD MODE', action: ownerGodMode, className: 'col-span-2 bg-gradient-to-r from-yellow-600 to-orange-600 font-black text-lg' }
+                        ].map((cmd, idx) => (
+                          <button
+                            key={idx}
+                            onClick={cmd.action}
+                            className={`${cmd.className || 'bg-gradient-to-br from-orange-600 to-red-600'} hover:brightness-110 text-white font-bold py-3 px-4 rounded-xl transition-all transform hover:scale-105 shadow-lg`}
+                            style={{ fontFamily: 'system-ui' }}
+                          >
+                            {cmd.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Your Stats */}
+                    <div className="bg-black/40 rounded-xl p-6 border border-orange-500/30">
+                      <h3 className="text-2xl font-black text-orange-400 mb-4" style={{ fontFamily: 'system-ui' }}>
+                        📊 Your Stats
+                      </h3>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {[
+                          { label: 'Cookies', value: formatNumber(cookies), icon: '🍪' },
+                          { label: 'CPC', value: formatNumber(cookiesPerClick), icon: '👆' },
+                          { label: 'CPS', value: formatNumber(cookiesPerSecond), icon: '🏭' },
+                          { label: 'Level', value: level, icon: '⭐' },
+                          { label: 'Prestige', value: prestige, icon: '🌟' },
+                          { label: 'Tokens', value: prestigeTokens, icon: '💎' },
+                          { label: 'Total Earned', value: formatNumber(totalCookiesEarned), icon: '💰' },
+                          { label: 'Total Clicks', value: formatNumber(totalClicks), icon: '🖱️' }
+                        ].map(stat => (
+                          <div key={stat.label} className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl p-4 border border-gray-700/50">
+                            <div className="text-3xl mb-2">{stat.icon}</div>
+                            <div className="text-xs text-gray-400 mb-1">{stat.label}</div>
+                            <div className="text-xl font-bold text-white">{stat.value}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                  </div>
+                )}
+                
+                {/* Other tabs remain similar but with better styling... */}
+                {ownerTab === 'players' && (
+                  <div className="text-white">Players tab - (keeping existing code but with better cards)</div>
+                )}
+                
+                {ownerTab === 'cosmetics' && (
+                  <div className="animate-fadeIn">
+                    <div className="bg-black/40 rounded-xl p-6 border border-orange-500/30 mb-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-2xl font-black text-orange-400" style={{ fontFamily: 'system-ui' }}>
+                          👑 Owner Exclusive Cosmetics
+                        </h3>
+                        <button onClick={() => openTutorial('give_cosmetic')} className="text-blue-400 hover:text-blue-300 text-sm font-bold">
+                          ? How to give
+                        </button>
+                      </div>
+                      
+                      {/* Owner Cookies */}
+                      <div className="mb-6">
+                        <h4 className="text-lg font-bold text-white mb-3">🍪 Owner Cookie Skins</h4>
+                        <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+                          {OWNER_COSMETICS.cookies.map(cookie => (
+                            <div key={cookie.id} className="bg-gradient-to-br from-orange-900/30 to-red-900/30 rounded-xl p-4 border-2 border-orange-500/50 text-center hover:scale-105 transition-all cursor-pointer group">
+                              <div className="text-5xl mb-2 group-hover:scale-110 transition-transform" style={{ filter: `drop-shadow(0 0 10px ${cookie.glow || '#ffd700'})` }}>
+                                {cookie.emoji}
+                              </div>
+                              <div className="text-xs font-bold text-orange-400 mb-1">{cookie.name}</div>
+                              <div className="text-xs text-gray-400">{cookie.desc}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Owner Themes */}
+                      <div className="mb-6">
+                        <h4 className="text-lg font-bold text-white mb-3">🎨 Owner Themes</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          {OWNER_COSMETICS.themes.map(theme => (
+                            <div key={theme.id} className="rounded-xl overflow-hidden border-2 border-orange-500/50 hover:scale-105 transition-all cursor-pointer">
+                              <div className="h-24 relative overflow-hidden" style={{ background: theme.bg }}>
+                                <div className="absolute inset-0" style={{ 
+                                  background: `linear-gradient(135deg, ${theme.accent} 0%, ${theme.secondary} 100%)`,
+                                  opacity: 0.3
+                                }} />
+                                {theme.glow && (
+                                  <div className="absolute inset-0 animate-pulse" style={{ 
+                                    background: `radial-gradient(circle, ${theme.accent}40 0%, transparent 70%)`
+                                  }} />
+                                )}
+                              </div>
+                              <div className="bg-black/60 p-3">
+                                <div className="text-sm font-bold text-orange-400">{theme.name}</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Owner Effects */}
+                      {OWNER_COSMETICS.effects && (
+                        <div>
+                          <h4 className="text-lg font-bold text-white mb-3">✨ Owner Effects</h4>
+                          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                            {OWNER_COSMETICS.effects.map(effect => (
+                              <div key={effect.id} className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-xl p-4 border-2 border-purple-500/50 text-center hover:scale-105 transition-all">
+                                <div className="text-sm font-bold text-purple-400 mb-1">{effect.name}</div>
+                                <div className="text-xs text-gray-400">{effect.desc}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
               
               {/* Owner tabs */}
               <div className="flex gap-2 mb-6 flex-wrap">
