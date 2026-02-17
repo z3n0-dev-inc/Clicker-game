@@ -3,8 +3,9 @@ const { useState, useEffect, useRef, useCallback, useMemo } = React;
 // API Configuration
 const API_URL = 'https://clicker-game-production.up.railway.app/api';
 const OWNER_CODE = 'EMPIRE2025';
+const MODERATOR_CODE = 'MOD2025';
 
-// COSMETICS
+// COSMETICS - Massively expanded
 const COSMETICS = {
   cookies: [
     { id: 'default', name: 'Classic Cookie', emoji: '🍪', rarity: 'common', cost: 0 },
@@ -20,6 +21,9 @@ const COSMETICS = {
     { id: 'alien', name: 'Alien Cookie', emoji: '👽', rarity: 'legendary', cost: 40000000 },
     { id: 'robot', name: 'Robot Cookie', emoji: '🤖', rarity: 'legendary', cost: 50000000 },
     { id: 'crown', name: 'Crown Cookie', emoji: '👑', rarity: 'legendary', cost: 100000000 },
+    { id: 'dragon', name: 'Dragon Cookie', emoji: '🐉', rarity: 'mythic', cost: 500000000 },
+    { id: 'unicorn', name: 'Unicorn Cookie', emoji: '🦄', rarity: 'mythic', cost: 750000000 },
+    { id: 'phoenix', name: 'Phoenix Cookie', emoji: '🔱', rarity: 'mythic', cost: 1000000000 },
   ],
   themes: [
     { id: 'default', name: 'Dark Void', bg: '#0a0a0a', accent: '#8b5cf6', secondary: '#06b6d4', rarity: 'common', cost: 0 },
@@ -31,6 +35,8 @@ const COSMETICS = {
     { id: 'matrix', name: 'Matrix Code', bg: '#0a1a0a', accent: '#22c55e', secondary: '#4ade80', rarity: 'legendary', cost: 30000000 },
     { id: 'void', name: 'Void Space', bg: '#000000', accent: '#6366f1', secondary: '#8b5cf6', rarity: 'legendary', cost: 60000000 },
     { id: 'neon', name: 'Neon City', bg: '#0f0a1a', accent: '#ec4899', secondary: '#a855f7', rarity: 'legendary', cost: 80000000 },
+    { id: 'galaxy', name: 'Galaxy', bg: '#0a0515', accent: '#a78bfa', secondary: '#818cf8', rarity: 'mythic', cost: 200000000 },
+    { id: 'volcanic', name: 'Volcanic', bg: '#1a0a00', accent: '#ef4444', secondary: '#f97316', rarity: 'mythic', cost: 300000000 },
   ],
   effects: [
     { id: 'none', name: 'No Effect', rarity: 'common', cost: 0 },
@@ -38,15 +44,24 @@ const COSMETICS = {
     { id: 'flames', name: 'Flame Aura', rarity: 'epic', cost: 5000000 },
     { id: 'lightning', name: 'Lightning Strikes', rarity: 'legendary', cost: 25000000 },
     { id: 'rainbow', name: 'Rainbow Pulse', rarity: 'legendary', cost: 40000000 },
-    { id: 'galaxy', name: 'Galaxy Swirl', rarity: 'legendary', cost: 100000000 },
+    { id: 'galaxy', name: 'Galaxy Swirl', rarity: 'mythic', cost: 100000000 },
+    { id: 'divine', name: 'Divine Light', rarity: 'mythic', cost: 250000000 },
   ],
   titles: [
     { id: 'none', name: 'No Title', display: '', rarity: 'common', cost: 0 },
     { id: 'baker', name: 'Master Baker', display: '🍞 Master Baker', rarity: 'rare', cost: 250000 },
     { id: 'legend', name: 'Cookie Legend', display: '⚡ Cookie Legend', rarity: 'epic', cost: 7500000 },
     { id: 'emperor', name: 'Cookie Emperor', display: '👑 Cookie Emperor', rarity: 'legendary', cost: 75000000 },
-    { id: 'god', name: 'Cookie God', display: '✨ Cookie God', rarity: 'legendary', cost: 500000000 },
+    { id: 'god', name: 'Cookie God', display: '✨ Cookie God', rarity: 'mythic', cost: 500000000 },
+    { id: 'z3n0', name: 'Z3N0', display: '⚡ Z3N0', rarity: 'creator', cost: 0, creatorOnly: true },
     { id: 'owner', name: 'Game Owner', display: '⚡ OWNER', rarity: 'owner', cost: 0, ownerOnly: true },
+    { id: 'moderator', name: 'Moderator', display: '🛡️ MOD', rarity: 'staff', cost: 0, staffOnly: true },
+  ],
+  badges: [
+    { id: 'veteran', name: 'Veteran', emoji: '🎖️', rarity: 'rare', cost: 1000000 },
+    { id: 'wealthy', name: 'Wealthy', emoji: '💰', rarity: 'epic', cost: 50000000 },
+    { id: 'speedster', name: 'Speedster', emoji: '⚡', rarity: 'legendary', cost: 100000000 },
+    { id: 'collector', name: 'Collector', emoji: '📦', rarity: 'legendary', cost: 250000000 },
   ]
 };
 
@@ -56,13 +71,85 @@ const OWNER_COSMETICS = {
     { id: 'dev', name: 'Developer Cookie', emoji: '💻', rarity: 'owner' },
     { id: 'master', name: 'Master Cookie', emoji: '🎯', rarity: 'owner' },
     { id: 'infinity', name: 'Infinity Cookie', emoji: '♾️', rarity: 'owner' },
+    { id: 'z3n0_special', name: 'Z3N0 Special', emoji: '🌟', rarity: 'creator' },
   ],
   themes: [
     { id: 'admin', name: 'Admin Panel', bg: '#0a0505', accent: '#fbbf24', secondary: '#f59e0b', rarity: 'owner' },
     { id: 'dev', name: 'Developer Mode', bg: '#050a05', accent: '#10b981', secondary: '#14b8a6', rarity: 'owner' },
     { id: 'owner', name: 'Owner Exclusive', bg: '#050505', accent: '#f97316', secondary: '#fb923c', rarity: 'owner' },
+    { id: 'z3n0_theme', name: 'Z3N0 Theme', bg: '#000510', accent: '#8b5cf6', secondary: '#a78bfa', rarity: 'creator' },
   ],
 };
+
+const MOD_COSMETICS = {
+  cookies: [
+    { id: 'mod_shield', name: 'Mod Shield', emoji: '🛡️', rarity: 'staff' },
+    { id: 'mod_hammer', name: 'Mod Hammer', emoji: '🔨', rarity: 'staff' },
+  ],
+  themes: [
+    { id: 'mod_panel', name: 'Moderator Panel', bg: '#0a0a15', accent: '#3b82f6', secondary: '#60a5fa', rarity: 'staff' },
+  ]
+};
+
+// GAME MODES
+const GAME_MODES = [
+  { 
+    id: 'classic', 
+    name: 'Classic Mode', 
+    desc: 'Traditional cookie clicking', 
+    icon: '🍪',
+    multiplier: 1,
+    unlocked: true
+  },
+  { 
+    id: 'speed', 
+    name: 'Speed Mode', 
+    desc: '2x click speed, 0.5x rewards', 
+    icon: '⚡',
+    multiplier: 0.5,
+    speedBonus: 2,
+    unlockRequirement: { level: 10 },
+    unlocked: false
+  },
+  { 
+    id: 'hardcore', 
+    name: 'Hardcore Mode', 
+    desc: '3x rewards, higher fail chance', 
+    icon: '💀',
+    multiplier: 3,
+    critFailMultiplier: 2,
+    unlockRequirement: { level: 25 },
+    unlocked: false
+  },
+  { 
+    id: 'zen', 
+    name: 'Zen Mode', 
+    desc: 'No fail chance, 0.8x rewards', 
+    icon: '🧘',
+    multiplier: 0.8,
+    noFail: true,
+    unlockRequirement: { prestige: 1 },
+    unlocked: false
+  },
+  { 
+    id: 'chaos', 
+    name: 'Chaos Mode', 
+    desc: 'Random multipliers (0.5x - 5x)', 
+    icon: '🌀',
+    chaosMode: true,
+    unlockRequirement: { prestige: 5 },
+    unlocked: false
+  },
+  { 
+    id: 'godmode', 
+    name: 'God Mode', 
+    desc: '10x everything (Owner only)', 
+    icon: '👑',
+    multiplier: 10,
+    ownerOnly: true,
+    unlocked: false
+  }
+];
 
 function UltimateCookieEmpire() {
   // Core game state
@@ -76,14 +163,27 @@ function UltimateCookieEmpire() {
   const [prestige, setPrestige] = useState(0);
   const [prestigeTokens, setPrestigeTokens] = useState(0);
   
+  // Roles
+  const [isOwner, setIsOwner] = useState(false);
+  const [isModerator, setIsModerator] = useState(false);
+  const [isZ3N0, setIsZ3N0] = useState(false);
+  
+  // Panels
+  const [ownerPanelOpen, setOwnerPanelOpen] = useState(false);
+  const [modPanelOpen, setModPanelOpen] = useState(false);
+  const [staffDashboardOpen, setStaffDashboardOpen] = useState(false);
+  const [ownerTab, setOwnerTab] = useState('quick');
+  const [modTab, setModTab] = useState('players');
+  const [staffTab, setStaffTab] = useState('overview');
+  
   // Difficulty
   const [criticalFailChance, setCriticalFailChance] = useState(0);
   const [criticalFails, setCriticalFails] = useState(0);
   
-  // Owner state
-  const [isOwner, setIsOwner] = useState(false);
-  const [ownerPanelOpen, setOwnerPanelOpen] = useState(false);
-  const [ownerTab, setOwnerTab] = useState('quick');
+  // Game mode
+  const [currentGameMode, setCurrentGameMode] = useState('classic');
+  const [gameModes, setGameModes] = useState(GAME_MODES);
+  const [chaosMultiplier, setChaosMultiplier] = useState(1);
   
   // Player identity
   const [playerName, setPlayerName] = useState(() => {
@@ -102,25 +202,30 @@ function UltimateCookieEmpire() {
     return newId;
   });
   
-  // Cosmetics
+  // Cosmetics & Gifts
   const [ownedCosmetics, setOwnedCosmetics] = useState({
     cookies: ['default'],
     themes: ['default'],
     effects: ['none'],
-    titles: ['none']
+    titles: ['none'],
+    badges: []
   });
   const [equippedCosmetics, setEquippedCosmetics] = useState({
     cookie: 'default',
     theme: 'default',
     effect: 'none',
-    title: 'none'
+    title: 'none',
+    badge: null
   });
+  const [cosmeticGifts, setCosmeticGifts] = useState([]);
   
   // UI state
   const [showCosmeticsMenu, setShowCosmeticsMenu] = useState(false);
   const [showCosmeticsShop, setShowCosmeticsShop] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
+  const [showGameModes, setShowGameModes] = useState(false);
+  const [showStats, setShowStats] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('click');
@@ -135,12 +240,23 @@ function UltimateCookieEmpire() {
   const [lastClickTime, setLastClickTime] = useState(0);
   const clickTimeWindowRef = useRef([]);
   
-  // Owner management
+  // Management
   const [allPlayers, setAllPlayers] = useState([]);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
-  const [ownerSearchQuery, setOwnerSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [modLogs, setModLogs] = useState([]);
   
-  // ACHIEVEMENTS
+  // Stats tracking
+  const [stats, setStats] = useState({
+    playTime: 0,
+    fastestClick: Infinity,
+    longestStreak: 0,
+    totalPrestige: 0,
+    cosmeticsUnlocked: 1,
+    achievementsUnlocked: 0
+  });
+  
+  // ACHIEVEMENTS - Expanded
   const [achievements, setAchievements] = useState([
     { id: 'first_click', name: 'First Cookie', desc: 'Click your first cookie', unlocked: false, icon: '🍪', reward: 10 },
     { id: 'hundred_cookies', name: 'Cookie Collector', desc: 'Earn 5,000 cookies', unlocked: false, icon: '💰', reward: 100 },
@@ -160,9 +276,12 @@ function UltimateCookieEmpire() {
     { id: 'survivor', name: 'Survivor', desc: 'Survive 25 critical failures', unlocked: false, icon: '💀', reward: 100000 },
     { id: 'click_master', name: 'Click Master', desc: 'Click 10,000 times', unlocked: false, icon: '👆', reward: 50000 },
     { id: 'click_god', name: 'Click God', desc: 'Click 100,000 times', unlocked: false, icon: '🖱️', reward: 500000 },
+    { id: 'fashionista', name: 'Fashionista', desc: 'Own 10 cosmetics', unlocked: false, icon: '👗', reward: 100000 },
+    { id: 'collector', name: 'Collector', desc: 'Own 25 cosmetics', unlocked: false, icon: '📦', reward: 500000 },
+    { id: 'mode_explorer', name: 'Mode Explorer', desc: 'Try all game modes', unlocked: false, icon: '🌍', reward: 1000000 },
   ]);
   
-  // UPGRADES
+  // UPGRADES - Expanded with owner upgrades
   const [upgrades, setUpgrades] = useState([
     // Click upgrades
     { id: 1, name: 'Better Fingers', desc: '+5 cookies per click', cost: 100, owned: 0, type: 'click', bonus: 5, icon: '👆', tier: 1 },
@@ -209,6 +328,8 @@ function UltimateCookieEmpire() {
     { id: 202, name: 'God Mode Clicker', desc: '+100000000 cookies per click', cost: 10000000000000000, owned: 0, type: 'click', bonus: 100000000, icon: '✨', tier: 10, ownerOnly: true },
     { id: 203, name: 'Owner Auto Farm', desc: '+100000000 cookies/sec', cost: 50000000000000, owned: 0, type: 'auto', cps: 100000000, icon: '🏭', tier: 8, ownerOnly: true },
     { id: 204, name: 'Infinite Production', desc: 'x10 ALL click power', cost: 500000000000000, owned: 0, type: 'click_mult', multiplier: 10, icon: '♾️', tier: 10, maxOwned: 1, ownerOnly: true },
+    { id: 205, name: 'Reality Control', desc: 'x100 ALL production', cost: 1000000000000000, owned: 0, type: 'click_mult', multiplier: 100, icon: '🌀', tier: 11, maxOwned: 1, ownerOnly: true },
+    { id: 206, name: 'Cosmic Dominance', desc: '+1B cookies/sec', cost: 10000000000000000, owned: 0, type: 'auto', cps: 1000000000, icon: '🌌', tier: 11, ownerOnly: true },
   ]);
   
   // Prestige upgrades
@@ -346,6 +467,10 @@ function UltimateCookieEmpire() {
         if (data.achievements) setAchievements(data.achievements);
         if (data.ownedCosmetics) setOwnedCosmetics(data.ownedCosmetics);
         if (data.equippedCosmetics) setEquippedCosmetics(data.equippedCosmetics);
+        if (data.cosmeticGifts) setCosmeticGifts(data.cosmeticGifts);
+        if (data.currentGameMode) setCurrentGameMode(data.currentGameMode);
+        if (data.gameModes) setGameModes(data.gameModes);
+        if (data.stats) setStats(data.stats);
         setCriticalFails(data.criticalFails || 0);
       }
     };
@@ -373,6 +498,10 @@ function UltimateCookieEmpire() {
         achievements,
         ownedCosmetics,
         equippedCosmetics,
+        cosmeticGifts,
+        currentGameMode,
+        gameModes,
+        stats,
         criticalFails
       });
       
@@ -380,10 +509,11 @@ function UltimateCookieEmpire() {
     }, 30000);
     
     return () => clearInterval(saveInterval);
-  }, [playerName, cookies, totalCookiesEarned, cookiesPerClick, cookiesPerSecond, totalClicks, level, xp, prestige, prestigeTokens, upgrades, prestigeUpgrades, achievements, ownedCosmetics, equippedCosmetics, criticalFails, api]);
+  }, [playerName, cookies, totalCookiesEarned, cookiesPerClick, cookiesPerSecond, totalClicks, level, xp, prestige, prestigeTokens, upgrades, prestigeUpgrades, achievements, ownedCosmetics, equippedCosmetics, cosmeticGifts, currentGameMode, gameModes, stats, criticalFails, api]);
   
   // Helper functions
   const formatNumber = useCallback((num) => {
+    if (num >= 1e18) return (num / 1e18).toFixed(2) + 'Qi';
     if (num >= 1e15) return (num / 1e15).toFixed(2) + 'Q';
     if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
     if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
@@ -421,9 +551,30 @@ function UltimateCookieEmpire() {
     return mult;
   }, [prestigeUpgrades, upgrades]);
   
+  const getGameModeMultiplier = useCallback(() => {
+    const mode = gameModes.find(m => m.id === currentGameMode);
+    if (!mode) return 1;
+    
+    if (mode.chaosMode) {
+      return chaosMultiplier;
+    }
+    
+    return mode.multiplier || 1;
+  }, [currentGameMode, gameModes, chaosMultiplier]);
+  
   // Calculate critical fail chance
   useEffect(() => {
+    const mode = gameModes.find(m => m.id === currentGameMode);
+    if (mode?.noFail) {
+      setCriticalFailChance(0);
+      return;
+    }
+    
     let chance = Math.min(0.2, level * 0.0015);
+    
+    if (mode?.critFailMultiplier) {
+      chance *= mode.critFailMultiplier;
+    }
     
     if (prestigeUpgrades) {
       const hasLuckMaster = prestigeUpgrades.find(pu => pu.id === 'p8' && pu.owned);
@@ -439,13 +590,26 @@ function UltimateCookieEmpire() {
     }
     
     setCriticalFailChance(Math.max(0, chance));
-  }, [level, prestigeUpgrades, upgrades]);
+  }, [level, prestigeUpgrades, upgrades, currentGameMode, gameModes]);
+  
+  // Chaos mode random multiplier
+  useEffect(() => {
+    const mode = gameModes.find(m => m.id === currentGameMode);
+    if (mode?.chaosMode) {
+      const interval = setInterval(() => {
+        const newMult = 0.5 + Math.random() * 4.5; // 0.5x to 5x
+        setChaosMultiplier(newMult);
+      }, 5000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [currentGameMode, gameModes]);
   
   // Auto-generate cookies
   useEffect(() => {
     const interval = setInterval(() => {
       if (cookiesPerSecond > 0) {
-        const amount = (cookiesPerSecond / 10) * getPrestigeMultiplier();
+        const amount = (cookiesPerSecond / 10) * getPrestigeMultiplier() * getGameModeMultiplier();
         setCookies(c => c + amount);
         setTotalCookiesEarned(t => t + amount);
         
@@ -455,7 +619,7 @@ function UltimateCookieEmpire() {
       }
     }, 100);
     return () => clearInterval(interval);
-  }, [cookiesPerSecond, getPrestigeMultiplier, prestigeUpgrades]);
+  }, [cookiesPerSecond, getPrestigeMultiplier, getGameModeMultiplier, prestigeUpgrades]);
   
   // Level up
   useEffect(() => {
@@ -463,11 +627,24 @@ function UltimateCookieEmpire() {
     if (xp >= required) {
       setXp(xp - required);
       setLevel(level + 1);
-      createNotification(`Level ${level + 1} reached!`);
+      createNotification(`🎉 Level ${level + 1}!`);
       
       const bonus = level * 100;
       setCookies(c => c + bonus);
       createNotification(`+${formatNumber(bonus)} bonus cookies`);
+      
+      // Unlock game modes
+      setGameModes(modes => modes.map(mode => {
+        if (mode.unlockRequirement) {
+          if (mode.unlockRequirement.level && level + 1 >= mode.unlockRequirement.level) {
+            if (!mode.unlocked) {
+              createNotification(`🎮 ${mode.name} unlocked!`);
+            }
+            return { ...mode, unlocked: true };
+          }
+        }
+        return mode;
+      }));
     }
   }, [xp, level, getLevelRequirement, formatNumber]);
   
@@ -487,12 +664,25 @@ function UltimateCookieEmpire() {
     }, 4000);
   }, []);
   
+  const addModLog = useCallback((action, details) => {
+    const log = {
+      id: Date.now(),
+      timestamp: new Date().toISOString(),
+      moderator: playerName,
+      action,
+      details
+    };
+    setModLogs(logs => [log, ...logs].slice(0, 100));
+  }, [playerName]);
+  
   // Check achievements
   const checkAchievements = useCallback(() => {
     if (!achievements || achievements.length === 0) return;
     
     const newAchievements = [...achievements];
     let changed = false;
+    
+    const cosmeticsCount = Object.values(ownedCosmetics).reduce((sum, arr) => sum + arr.length, 0);
     
     const checks = [
       { index: 0, condition: totalClicks > 0 },
@@ -513,6 +703,9 @@ function UltimateCookieEmpire() {
       { index: 15, condition: criticalFails >= 25 },
       { index: 16, condition: totalClicks >= 10000 },
       { index: 17, condition: totalClicks >= 100000 },
+      { index: 18, condition: cosmeticsCount >= 10 },
+      { index: 19, condition: cosmeticsCount >= 25 },
+      { index: 20, condition: gameModes.filter(m => m.unlocked && m.id !== currentGameMode).length >= gameModes.filter(m => !m.ownerOnly).length - 1 },
     ];
     
     checks.forEach(({ index, condition }) => {
@@ -522,11 +715,12 @@ function UltimateCookieEmpire() {
         const reward = newAchievements[index].reward;
         setCookies(c => c + reward);
         createNotification(`🏆 ${newAchievements[index].name}! +${formatNumber(reward)}`);
+        setStats(s => ({ ...s, achievementsUnlocked: s.achievementsUnlocked + 1 }));
       }
     });
     
     if (changed) setAchievements(newAchievements);
-  }, [achievements, totalCookiesEarned, totalClicks, level, cookiesPerSecond, upgrades, prestige, criticalFails, formatNumber, createNotification]);
+  }, [achievements, totalCookiesEarned, totalClicks, level, cookiesPerSecond, upgrades, prestige, criticalFails, ownedCosmetics, gameModes, currentGameMode, formatNumber, createNotification]);
   
   useEffect(() => {
     if (achievements && achievements.length > 0) {
@@ -547,11 +741,20 @@ function UltimateCookieEmpire() {
       setAchievements(newAch);
       setCookies(c => c + 10000);
       createNotification('🏆 Speed Demon! +10,000');
+      setStats(s => ({ ...s, achievementsUnlocked: s.achievementsUnlocked + 1 }));
     }
   }, [totalClicks, achievements, createNotification]);
   
   // Handle click
   const handleClick = useCallback((e) => {
+    const clickTime = Date.now();
+    const timeSinceLastClick = clickTime - lastClickTime;
+    
+    // Track fastest click
+    if (timeSinceLastClick > 0 && timeSinceLastClick < stats.fastestClick) {
+      setStats(s => ({ ...s, fastestClick: timeSinceLastClick }));
+    }
+    
     if (Math.random() < criticalFailChance) {
       const lossAmount = Math.floor(cookies * 0.15);
       setCookies(c => Math.max(0, c - lossAmount));
@@ -561,7 +764,7 @@ function UltimateCookieEmpire() {
       return;
     }
     
-    const earnedAmount = cookiesPerClick * getPrestigeMultiplier();
+    const earnedAmount = cookiesPerClick * getPrestigeMultiplier() * getGameModeMultiplier();
     setCookies(c => c + earnedAmount);
     setTotalCookiesEarned(t => t + earnedAmount);
     
@@ -574,7 +777,12 @@ function UltimateCookieEmpire() {
     
     const now = Date.now();
     if (now - lastClickTime < 500) {
-      setClickStreak(cs => cs + 1);
+      const newStreak = clickStreak + 1;
+      setClickStreak(newStreak);
+      
+      if (newStreak > stats.longestStreak) {
+        setStats(s => ({ ...s, longestStreak: newStreak }));
+      }
     } else {
       setClickStreak(1);
     }
@@ -589,9 +797,9 @@ function UltimateCookieEmpire() {
       const bonus = earnedAmount * 5;
       setCookies(c => c + bonus);
       setTotalCookiesEarned(t => t + bonus);
-      createParticle(x, y + 40, `STREAK x${clickStreak}!`, '#f97316');
+      createParticle(x, y + 40, `COMBO x${clickStreak}!`, '#f97316');
     }
-  }, [criticalFailChance, cookies, cookiesPerClick, getPrestigeMultiplier, lastClickTime, clickStreak, formatNumber, prestigeUpgrades, createNotification, createParticle]);
+  }, [criticalFailChance, cookies, cookiesPerClick, getPrestigeMultiplier, getGameModeMultiplier, lastClickTime, clickStreak, formatNumber, prestigeUpgrades, stats, createNotification, createParticle]);
   
   // Buy upgrade
   const buyUpgrade = useCallback((upgrade) => {
@@ -680,6 +888,18 @@ function UltimateCookieEmpire() {
       setPrestige(p => p + 1);
       setPrestigeTokens(pt => pt + tokensEarned);
       setCriticalFails(0);
+      setStats(s => ({ ...s, totalPrestige: s.totalPrestige + 1 }));
+      
+      // Unlock zen mode on first prestige
+      setGameModes(modes => modes.map(mode => {
+        if (mode.unlockRequirement?.prestige && prestige + 1 >= mode.unlockRequirement.prestige) {
+          if (!mode.unlocked) {
+            createNotification(`🎮 ${mode.name} unlocked!`);
+          }
+          return { ...mode, unlocked: true };
+        }
+        return mode;
+      }));
       
       setUpgrades([
         { id: 1, name: 'Better Fingers', desc: '+5 cookies per click', cost: 100, owned: 0, type: 'click', bonus: 5, icon: '👆', tier: 1 },
@@ -716,6 +936,8 @@ function UltimateCookieEmpire() {
         { id: 202, name: 'God Mode Clicker', desc: '+100000000 cookies per click', cost: 10000000000000000, owned: 0, type: 'click', bonus: 100000000, icon: '✨', tier: 10, ownerOnly: true },
         { id: 203, name: 'Owner Auto Farm', desc: '+100000000 cookies/sec', cost: 50000000000000, owned: 0, type: 'auto', cps: 100000000, icon: '🏭', tier: 8, ownerOnly: true },
         { id: 204, name: 'Infinite Production', desc: 'x10 ALL click power', cost: 500000000000000, owned: 0, type: 'click_mult', multiplier: 10, icon: '♾️', tier: 10, maxOwned: 1, ownerOnly: true },
+        { id: 205, name: 'Reality Control', desc: 'x100 ALL production', cost: 1000000000000000, owned: 0, type: 'click_mult', multiplier: 100, icon: '🌀', tier: 11, maxOwned: 1, ownerOnly: true },
+        { id: 206, name: 'Cosmic Dominance', desc: '+1B cookies/sec', cost: 10000000000000000, owned: 0, type: 'auto', cps: 1000000000, icon: '🌌', tier: 11, ownerOnly: true },
       ]);
       
       createNotification(`🌟 PRESTIGE ${prestige + 1}! +${tokensEarned} tokens`);
@@ -730,15 +952,21 @@ function UltimateCookieEmpire() {
         ...oc,
         [type + 's']: [...oc[type + 's'], cosmetic.id]
       }));
+      setStats(s => ({ ...s, cosmeticsUnlocked: s.cosmeticsUnlocked + 1 }));
       createNotification(`✓ ${cosmetic.name}`);
     }
   }, [cookies, ownedCosmetics, createNotification]);
   
   const equipCosmetic = useCallback((type, id) => {
     setEquippedCosmetics(ec => ({ ...ec, [type]: id }));
-    const item = [...COSMETICS[type + 's'], ...(isOwner ? OWNER_COSMETICS[type + 's'] || [] : [])].find(c => c.id === id);
+    const allItems = [
+      ...COSMETICS[type + 's'] || [],
+      ...(isOwner ? OWNER_COSMETICS[type + 's'] || [] : []),
+      ...(isModerator ? MOD_COSMETICS[type + 's'] || [] : [])
+    ];
+    const item = allItems.find(c => c.id === id);
     createNotification(`✓ Equipped ${item?.name || 'item'}`);
-  }, [createNotification, isOwner]);
+  }, [createNotification, isOwner, isModerator]);
   
   const getRarityColor = useCallback((rarity) => {
     switch (rarity) {
@@ -746,7 +974,10 @@ function UltimateCookieEmpire() {
       case 'rare': return '#60a5fa';
       case 'epic': return '#a78bfa';
       case 'legendary': return '#fbbf24';
+      case 'mythic': return '#f472b6';
       case 'owner': return '#f97316';
+      case 'staff': return '#3b82f6';
+      case 'creator': return '#8b5cf6';
       default: return '#ffffff';
     }
   }, []);
@@ -767,7 +998,7 @@ function UltimateCookieEmpire() {
     }
   }, [showLeaderboard, updateLeaderboard]);
   
-  // Owner functions
+  // Owner/Mod functions
   const loadAllPlayers = useCallback(async () => {
     const result = await api.getAllPlayers();
     if (result.success && Array.isArray(result.data)) {
@@ -776,10 +1007,10 @@ function UltimateCookieEmpire() {
   }, [api]);
   
   useEffect(() => {
-    if (isOwner && ownerPanelOpen) {
+    if ((isOwner || isModerator) && (ownerPanelOpen || modPanelOpen || staffDashboardOpen)) {
       loadAllPlayers();
     }
-  }, [isOwner, ownerPanelOpen, loadAllPlayers]);
+  }, [isOwner, isModerator, ownerPanelOpen, modPanelOpen, staffDashboardOpen, loadAllPlayers]);
   
   // OWNER COMMANDS
   const ownerDeletePlayer = useCallback(async (targetPlayerId) => {
@@ -787,43 +1018,52 @@ function UltimateCookieEmpire() {
       const result = await api.deletePlayer(targetPlayerId);
       if (result.success) {
         createNotification(`✓ Player deleted`);
+        addModLog('DELETE_PLAYER', `Deleted player ${targetPlayerId}`);
         loadAllPlayers();
       } else {
-        createNotification(`✗ Failed to delete player`);
+        createNotification(`✗ Failed to delete`);
       }
     }
-  }, [api, createNotification, loadAllPlayers]);
+  }, [api, createNotification, addModLog, loadAllPlayers]);
   
-  const ownerResetPlayerEconomy = useCallback(async (targetPlayerId) => {
-    if (confirm(`Reset economy for player ${targetPlayerId}?`)) {
+  const ownerGiveCosmetic = useCallback(async (targetPlayerId, cosmeticType, cosmeticId, cosmeticName) => {
+    const player = allPlayers.find(p => p.playerId === targetPlayerId);
+    const currentOwned = player?.ownedCosmetics?.[cosmeticType + 's'] || (cosmeticType === 'cookie' ? ['default'] : cosmeticType === 'theme' ? ['default'] : cosmeticType === 'effect' ? ['none'] : ['none']);
+    
+    if (!currentOwned.includes(cosmeticId)) {
       const result = await api.updatePlayer(targetPlayerId, {
-        cookies: 0,
-        totalCookiesEarned: 0,
-        cookiesPerClick: 1,
-        cookiesPerSecond: 0
+        [`ownedCosmetics.${cosmeticType}s`]: [...currentOwned, cosmeticId]
       });
+      
       if (result.success) {
-        createNotification(`✓ Economy reset`);
+        // Add gift record
+        const gift = {
+          id: Date.now(),
+          from: playerName,
+          cosmeticType,
+          cosmeticId,
+          cosmeticName,
+          timestamp: new Date().toISOString()
+        };
+        
+        const gifts = player?.cosmeticGifts || [];
+        await api.updatePlayer(targetPlayerId, {
+          cosmeticGifts: [...gifts, gift]
+        });
+        
+        createNotification(`✓ Gave ${cosmeticName} to player`);
+        addModLog('GIVE_COSMETIC', `Gave ${cosmeticName} to ${targetPlayerId}`);
         loadAllPlayers();
       } else {
-        createNotification(`✗ Failed to reset`);
+        createNotification(`✗ Failed`);
       }
-    }
-  }, [api, createNotification, loadAllPlayers]);
-  
-  const ownerGiveCosmetic = useCallback(async (targetPlayerId, cosmeticType, cosmeticId) => {
-    const result = await api.updatePlayer(targetPlayerId, {
-      [`ownedCosmetics.${cosmeticType}s`]: cosmeticId
-    });
-    if (result.success) {
-      createNotification(`✓ Cosmetic given`);
     } else {
-      createNotification(`✗ Failed`);
+      createNotification('Player already owns this');
     }
-  }, [api, createNotification]);
+  }, [api, createNotification, addModLog, loadAllPlayers, playerName, allPlayers]);
   
   const ownerGodMode = useCallback(() => {
-    setCookies(999999999999999);
+    setCookies(Number.MAX_SAFE_INTEGER);
     setLevel(999);
     setPrestige(999);
     setPrestigeTokens(99999);
@@ -836,21 +1076,77 @@ function UltimateCookieEmpire() {
       cookies: [...COSMETICS.cookies.map(c => c.id), ...OWNER_COSMETICS.cookies.map(c => c.id)],
       themes: [...COSMETICS.themes.map(t => t.id), ...OWNER_COSMETICS.themes.map(t => t.id)],
       effects: COSMETICS.effects.map(e => e.id),
-      titles: COSMETICS.titles.map(t => t.id)
+      titles: COSMETICS.titles.map(t => t.id),
+      badges: COSMETICS.badges.map(b => b.id)
     });
-    createNotification('👑 GOD MODE');
-  }, [createNotification, achievements]);
+    setGameModes(modes => modes.map(m => ({ ...m, unlocked: true })));
+    createNotification('👑 GOD MODE ACTIVATED');
+    addModLog('GOD_MODE', 'Activated god mode');
+  }, [createNotification, addModLog, achievements]);
+  
+  // MOD COMMANDS
+  const modWarnPlayer = useCallback(async (targetPlayerId, reason) => {
+    const result = await api.updatePlayer(targetPlayerId, {
+      warnings: (allPlayers.find(p => p.playerId === targetPlayerId)?.warnings || 0) + 1
+    });
+    
+    if (result.success) {
+      createNotification(`✓ Warned player`);
+      addModLog('WARN_PLAYER', `Warned ${targetPlayerId}: ${reason}`);
+      loadAllPlayers();
+    }
+  }, [api, createNotification, addModLog, loadAllPlayers, allPlayers]);
+  
+  const modMutePlayer = useCallback(async (targetPlayerId, duration) => {
+    const result = await api.updatePlayer(targetPlayerId, {
+      muted: true,
+      muteExpires: Date.now() + (duration * 60 * 1000)
+    });
+    
+    if (result.success) {
+      createNotification(`✓ Muted for ${duration}m`);
+      addModLog('MUTE_PLAYER', `Muted ${targetPlayerId} for ${duration} minutes`);
+      loadAllPlayers();
+    }
+  }, [api, createNotification, addModLog, loadAllPlayers]);
+  
+  const modResetPlayerProgress = useCallback(async (targetPlayerId) => {
+    if (confirm(`Reset ${targetPlayerId}'s progress?`)) {
+      const result = await api.updatePlayer(targetPlayerId, {
+        cookies: 0,
+        totalCookiesEarned: 0,
+        cookiesPerClick: 1,
+        cookiesPerSecond: 0,
+        level: 1,
+        prestige: 0
+      });
+      
+      if (result.success) {
+        createNotification(`✓ Progress reset`);
+        addModLog('RESET_PROGRESS', `Reset progress for ${targetPlayerId}`);
+        loadAllPlayers();
+      }
+    }
+  }, [api, createNotification, addModLog, loadAllPlayers]);
   
   // Get equipped items
   const getEquippedCookie = useCallback(() => {
-    const allCookies = isOwner ? [...COSMETICS.cookies, ...OWNER_COSMETICS.cookies] : COSMETICS.cookies;
+    const allCookies = [
+      ...COSMETICS.cookies,
+      ...(isOwner ? OWNER_COSMETICS.cookies : []),
+      ...(isModerator ? MOD_COSMETICS.cookies : [])
+    ];
     return allCookies.find(c => c.id === equippedCosmetics.cookie) || COSMETICS.cookies[0];
-  }, [equippedCosmetics.cookie, isOwner]);
+  }, [equippedCosmetics.cookie, isOwner, isModerator]);
   
   const getEquippedTheme = useCallback(() => {
-    const allThemes = isOwner ? [...COSMETICS.themes, ...OWNER_COSMETICS.themes] : COSMETICS.themes;
+    const allThemes = [
+      ...COSMETICS.themes,
+      ...(isOwner ? OWNER_COSMETICS.themes : []),
+      ...(isModerator ? MOD_COSMETICS.themes : [])
+    ];
     return allThemes.find(t => t.id === equippedCosmetics.theme) || COSMETICS.themes[0];
-  }, [equippedCosmetics.theme, isOwner]);
+  }, [equippedCosmetics.theme, isOwner, isModerator]);
   
   const getEquippedTitle = useCallback(() => {
     return COSMETICS.titles.find(t => t.id === equippedCosmetics.title) || COSMETICS.titles[0];
@@ -866,6 +1162,7 @@ function UltimateCookieEmpire() {
   const equippedCookie = getEquippedCookie();
   const equippedTheme = getEquippedTheme();
   const equippedTitle = getEquippedTitle();
+  const currentMode = gameModes.find(m => m.id === currentGameMode);
   
   // Name input screen
   if (showNameInput) {
@@ -886,7 +1183,7 @@ function UltimateCookieEmpire() {
               COOKIE EMPIRE
             </h1>
             <div className="text-cyan-400 text-sm font-semibold tracking-wider mb-2" style={{ fontFamily: 'monospace' }}>
-              ULTIMATE EDITION
+              ULTIMATE EDITION V2.0
             </div>
           </div>
           
@@ -911,12 +1208,12 @@ function UltimateCookieEmpire() {
               className="w-full mt-6 bg-purple-600 hover:bg-purple-500 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
               style={{ fontFamily: 'system-ui' }}
             >
-              Start Game
+              Start Empire
             </button>
           </div>
           
           <div className="text-center mt-6 text-xs text-gray-500">
-            Made by Z3N0
+            Created by Z3N0 • Ultimate Edition
           </div>
         </div>
       </div>
@@ -924,13 +1221,13 @@ function UltimateCookieEmpire() {
   }
   
   const filteredPlayers = allPlayers.filter(p => 
-    p.playerName?.toLowerCase().includes(ownerSearchQuery.toLowerCase()) ||
-    p.playerId?.toLowerCase().includes(ownerSearchQuery.toLowerCase())
+    p.playerName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    p.playerId?.toLowerCase().includes(searchQuery.toLowerCase())
   );
   
-  // Main game UI
+  // MAIN GAME UI
   return (
-    <div className="min-h-screen" style={{ backgroundColor: equippedTheme.bg }}>
+    <div className="min-h-screen relative overflow-x-hidden" style={{ backgroundColor: equippedTheme.bg }}>
       {/* Particles */}
       {particles.map(particle => (
         <div
@@ -953,11 +1250,12 @@ function UltimateCookieEmpire() {
         {notifications.map(notif => (
           <div
             key={notif.id}
-            className="px-4 py-3 rounded-lg shadow-lg text-sm font-medium"
+            className="px-4 py-3 rounded-lg shadow-lg text-sm font-medium backdrop-blur-sm"
             style={{ 
-              backgroundColor: equippedTheme.accent,
+              backgroundColor: `${equippedTheme.accent}dd`,
               animation: 'slideIn 0.3s ease-out',
-              fontFamily: 'system-ui'
+              fontFamily: 'system-ui',
+              border: `1px solid ${equippedTheme.accent}`
             }}
           >
             {notif.message}
@@ -965,49 +1263,124 @@ function UltimateCookieEmpire() {
         ))}
       </div>
       
-      {/* Save indicator */}
-      <div className="fixed top-4 left-4 z-40 bg-black/60 backdrop-blur-sm px-3 py-2 rounded-lg text-xs text-gray-400" style={{ fontFamily: 'monospace' }}>
-        {saveStatus === 'saving' && '💾 Saving'}
-        {saveStatus === 'saved' && '✓ Saved'}
-        {saveStatus === 'error' && '✗ Error'}
-      </div>
-      
-      {/* Critical fail warning */}
-      {criticalFailChance > 0 && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-40 bg-red-900/60 backdrop-blur-sm px-4 py-2 rounded-lg text-xs text-red-200" style={{ fontFamily: 'monospace' }}>
-          💀 {(criticalFailChance * 100).toFixed(1)}% fail
+      {/* Top bar */}
+      <div className="sticky top-0 z-40 bg-black/40 backdrop-blur-xl border-b border-gray-700/50">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="text-xs text-gray-400" style={{ fontFamily: 'monospace' }}>
+              {saveStatus === 'saving' && '💾 Saving'}
+              {saveStatus === 'saved' && '✓ Saved'}
+              {saveStatus === 'error' && '✗ Error'}
+            </div>
+            {criticalFailChance > 0 && (
+              <div className="text-xs text-red-400" style={{ fontFamily: 'monospace' }}>
+                💀 {(criticalFailChance * 100).toFixed(1)}%
+              </div>
+            )}
+            {currentMode?.id !== 'classic' && (
+              <div className="text-xs font-bold px-2 py-1 rounded" style={{ 
+                backgroundColor: equippedTheme.accent,
+                fontFamily: 'system-ui'
+              }}>
+                {currentMode.icon} {currentMode.name}
+              </div>
+            )}
+          </div>
+          
+          <div className="flex items-center gap-2">
+            {/* Role access buttons */}
+            {!isOwner && !isModerator && !isZ3N0 && (
+              <>
+                <button
+                  onClick={() => {
+                    const code = prompt('Enter code:');
+                    if (code === OWNER_CODE) {
+                      setIsOwner(true);
+                      setOwnedCosmetics(oc => ({
+                        ...oc,
+                        titles: [...oc.titles, 'owner']
+                      }));
+                      setEquippedCosmetics(ec => ({ ...ec, title: 'owner' }));
+                      createNotification('👑 OWNER ACCESS GRANTED');
+                    } else if (code === MODERATOR_CODE) {
+                      setIsModerator(true);
+                      setOwnedCosmetics(oc => ({
+                        ...oc,
+                        titles: [...oc.titles, 'moderator']
+                      }));
+                      setEquippedCosmetics(ec => ({ ...ec, title: 'moderator' }));
+                      createNotification('🛡️ MODERATOR ACCESS GRANTED');
+                    } else if (code === 'Z3N0') {
+                      setIsZ3N0(true);
+                      setIsOwner(true);
+                      setOwnedCosmetics(oc => ({
+                        ...oc,
+                        titles: [...oc.titles, 'z3n0', 'owner'],
+                        cookies: [...oc.cookies, 'z3n0_special'],
+                        themes: [...oc.themes, 'z3n0_theme']
+                      }));
+                      setEquippedCosmetics(ec => ({ ...ec, title: 'z3n0' }));
+                      createNotification('⚡ Z3N0 CREATOR ACCESS');
+                    } else if (code) {
+                      createNotification('✗ Invalid code');
+                    }
+                  }}
+                  className="w-8 h-8 rounded-full flex items-center justify-center opacity-10 hover:opacity-100 transition-opacity"
+                  style={{ backgroundColor: equippedTheme.accent }}
+                >
+                  <span className="text-sm">🔐</span>
+                </button>
+              </>
+            )}
+            
+            {isModerator && !isOwner && (
+              <button
+                onClick={() => setModPanelOpen(true)}
+                className="px-3 py-1 rounded-lg font-medium text-xs transition-all hover:scale-105"
+                style={{ 
+                  backgroundColor: '#3b82f6',
+                  color: '#fff',
+                  fontFamily: 'system-ui'
+                }}
+              >
+                🛡️ Mod
+              </button>
+            )}
+            
+            {isOwner && (
+              <>
+                <button
+                  onClick={() => setOwnerPanelOpen(true)}
+                  className="px-3 py-1 rounded-lg font-medium text-xs transition-all hover:scale-105"
+                  style={{ 
+                    backgroundColor: '#f97316',
+                    color: '#000',
+                    fontFamily: 'system-ui'
+                  }}
+                >
+                  👑 Owner
+                </button>
+                <button
+                  onClick={() => setStaffDashboardOpen(true)}
+                  className="px-3 py-1 rounded-lg font-medium text-xs transition-all hover:scale-105"
+                  style={{ 
+                    backgroundColor: '#8b5cf6',
+                    color: '#fff',
+                    fontFamily: 'system-ui'
+                  }}
+                >
+                  📊 Dashboard
+                </button>
+              </>
+            )}
+          </div>
         </div>
-      )}
-      
-      {/* Owner access */}
-      {!isOwner && (
-        <button
-          onClick={() => {
-            const code = prompt('Owner code:');
-            if (code === OWNER_CODE) {
-              setIsOwner(true);
-              setOwnerPanelOpen(true);
-              setOwnedCosmetics(oc => ({
-                ...oc,
-                titles: [...oc.titles, 'owner']
-              }));
-              setEquippedCosmetics(ec => ({ ...ec, title: 'owner' }));
-              createNotification('👑 OWNER ACCESS');
-            } else if (code) {
-              createNotification('✗ Invalid code');
-            }
-          }}
-          className="fixed bottom-4 left-4 w-10 h-10 rounded-full flex items-center justify-center opacity-10 hover:opacity-100 transition-opacity z-40"
-          style={{ backgroundColor: equippedTheme.accent }}
-        >
-          <span className="text-lg">👑</span>
-        </button>
-      )}
+      </div>
       
       <div className="max-w-7xl mx-auto p-4">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-6xl font-black mb-2" style={{ 
+        <div className="text-center mb-6">
+          <h1 className="text-5xl md:text-6xl font-black mb-2" style={{ 
             background: `linear-gradient(135deg, ${equippedTheme.accent} 0%, ${equippedTheme.secondary} 100%)`,
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -1016,109 +1389,55 @@ function UltimateCookieEmpire() {
           }}>
             COOKIE EMPIRE
           </h1>
-          <div className="flex items-center justify-center gap-3 text-sm">
+          <div className="flex items-center justify-center gap-3 text-sm flex-wrap">
             {equippedTitle.display && (
-              <span className="font-bold" style={{ 
+              <span className="font-bold px-2 py-1 rounded" style={{ 
                 color: getRarityColor(equippedTitle.rarity),
+                backgroundColor: `${getRarityColor(equippedTitle.rarity)}20`,
                 fontFamily: 'system-ui'
               }}>
                 {equippedTitle.display}
               </span>
             )}
-            <span className="text-gray-400" style={{ fontFamily: 'system-ui' }}>
+            <span className="text-gray-300 font-medium" style={{ fontFamily: 'system-ui' }}>
               {playerName}
             </span>
+            <span className="text-gray-500 text-xs" style={{ fontFamily: 'monospace' }}>
+              #{playerId.slice(-6)}
+            </span>
           </div>
-          {isOwner && (
-            <div className="mt-2 inline-block px-3 py-1 rounded-full text-xs font-bold" style={{ 
-              backgroundColor: '#f97316',
-              color: '#000',
-              fontFamily: 'system-ui'
-            }}>
-              ⚡ OWNER
-            </div>
-          )}
         </div>
         
-        {/* Navigation */}
+        {/* Navigation - More compact */}
         <div className="flex justify-center gap-2 mb-6 flex-wrap">
-          <button
-            onClick={() => setShowLeaderboard(true)}
-            className="px-4 py-2 rounded-lg font-medium text-sm transition-all hover:scale-105"
-            style={{ 
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-              borderWidth: '1px',
-              borderStyle: 'solid',
-              borderColor: 'rgba(255, 255, 255, 0.1)',
-              color: '#fff',
-              fontFamily: 'system-ui'
-            }}
-          >
-            🏆 Leaderboard
-          </button>
-          
-          <button
-            onClick={() => setShowAchievements(true)}
-            className="px-4 py-2 rounded-lg font-medium text-sm transition-all hover:scale-105"
-            style={{ 
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-              borderWidth: '1px',
-              borderStyle: 'solid',
-              borderColor: 'rgba(255, 255, 255, 0.1)',
-              color: '#fff',
-              fontFamily: 'system-ui'
-            }}
-          >
-            🎖️ Achievements
-          </button>
-          
-          <button
-            onClick={() => setShowCosmeticsMenu(true)}
-            className="px-4 py-2 rounded-lg font-medium text-sm transition-all hover:scale-105"
-            style={{ 
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-              borderWidth: '1px',
-              borderStyle: 'solid',
-              borderColor: 'rgba(255, 255, 255, 0.1)',
-              color: '#fff',
-              fontFamily: 'system-ui'
-            }}
-          >
-            🎨 Wardrobe
-          </button>
-          
-          <button
-            onClick={() => setShowCosmeticsShop(true)}
-            className="px-4 py-2 rounded-lg font-medium text-sm transition-all hover:scale-105"
-            style={{ 
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-              borderWidth: '1px',
-              borderStyle: 'solid',
-              borderColor: 'rgba(255, 255, 255, 0.1)',
-              color: '#fff',
-              fontFamily: 'system-ui'
-            }}
-          >
-            🛒 Shop
-          </button>
-          
-          {isOwner && (
+          {[
+            { label: '🏆 Leaderboard', action: () => setShowLeaderboard(true) },
+            { label: '🎖️ Achievements', action: () => setShowAchievements(true) },
+            { label: '🎮 Modes', action: () => setShowGameModes(true) },
+            { label: '🎨 Wardrobe', action: () => setShowCosmeticsMenu(true) },
+            { label: '🛒 Shop', action: () => setShowCosmeticsShop(true) },
+            { label: '📊 Stats', action: () => setShowStats(true) },
+          ].map(btn => (
             <button
-              onClick={() => setOwnerPanelOpen(true)}
-              className="px-4 py-2 rounded-lg font-medium text-sm transition-all hover:scale-105"
+              key={btn.label}
+              onClick={btn.action}
+              className="px-3 py-2 rounded-lg font-medium text-xs transition-all hover:scale-105 hover:brightness-110"
               style={{ 
-                backgroundColor: '#f97316',
-                color: '#000',
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                borderWidth: '1px',
+                borderStyle: 'solid',
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+                color: '#fff',
                 fontFamily: 'system-ui'
               }}
             >
-              👑 Owner
+              {btn.label}
             </button>
-          )}
+          ))}
         </div>
         
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* Left */}
+          {/* Left - Stats & Clicker */}
           <div className="lg:col-span-2 space-y-6">
             {/* Stats */}
             <div className="bg-gray-900/40 backdrop-blur-sm rounded-xl border border-gray-700/50 p-6">
@@ -1135,7 +1454,7 @@ function UltimateCookieEmpire() {
                     color: equippedTheme.accent,
                     fontFamily: 'system-ui'
                   }}>
-                    {formatNumber(cookiesPerClick)}
+                    {formatNumber(Math.floor(cookiesPerClick * getPrestigeMultiplier() * getGameModeMultiplier()))}
                   </div>
                 </div>
                 <div>
@@ -1144,7 +1463,7 @@ function UltimateCookieEmpire() {
                     color: equippedTheme.secondary,
                     fontFamily: 'system-ui'
                   }}>
-                    {formatNumber(cookiesPerSecond)}
+                    {formatNumber(Math.floor(cookiesPerSecond * getPrestigeMultiplier() * getGameModeMultiplier()))}
                   </div>
                 </div>
                 <div>
@@ -1156,7 +1475,7 @@ function UltimateCookieEmpire() {
               </div>
               
               {/* XP Bar */}
-              <div>
+              <div className="mb-4">
                 <div className="flex justify-between text-xs text-gray-400 mb-1" style={{ fontFamily: 'monospace' }}>
                   <span>XP: {formatNumber(xp)} / {formatNumber(getLevelRequirement(level))}</span>
                   <span>Next: {level + 1}</span>
@@ -1174,7 +1493,7 @@ function UltimateCookieEmpire() {
               
               {/* Prestige */}
               {prestige > 0 && (
-                <div className="mt-4 bg-black/30 rounded-lg p-3 border border-gray-700/50">
+                <div className="bg-black/30 rounded-lg p-3 border border-gray-700/50">
                   <div className="flex justify-between items-center">
                     <div>
                       <span className="text-sm font-medium text-gray-300" style={{ fontFamily: 'system-ui' }}>
@@ -1200,7 +1519,7 @@ function UltimateCookieEmpire() {
                     backgroundColor: '#f97316',
                     fontFamily: 'system-ui'
                   }}>
-                    🔥 STREAK: {clickStreak}x
+                    🔥 COMBO: {clickStreak}x
                   </div>
                 </div>
               )}
@@ -1210,69 +1529,58 @@ function UltimateCookieEmpire() {
             <div className="text-center">
               <button
                 onClick={handleClick}
-                className="w-64 h-64 md:w-80 md:h-80 text-9xl rounded-full active:scale-95 transition-all select-none mx-auto relative overflow-hidden"
+                className="w-56 h-56 md:w-72 md:h-72 text-8xl md:text-9xl rounded-full active:scale-95 transition-all select-none mx-auto relative overflow-hidden shadow-2xl"
                 style={{
                   WebkitTapHighlightColor: 'transparent',
                   background: `linear-gradient(135deg, ${equippedTheme.accent} 0%, ${equippedTheme.secondary} 100%)`,
-                  boxShadow: `0 10px 40px ${equippedTheme.accent}40`,
-                  border: '4px solid rgba(255, 255, 255, 0.1)'
+                  boxShadow: `0 10px 60px ${equippedTheme.accent}60, 0 0 0 4px rgba(255,255,255,0.1)`,
                 }}
               >
-                <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 100%)' }} />
-                <span className="relative z-10">{equippedCookie.emoji}</span>
+                <div className="absolute inset-0" style={{ 
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 100%)',
+                  animation: 'pulse 2s ease-in-out infinite'
+                }} />
+                <span className="relative z-10 drop-shadow-2xl">{equippedCookie.emoji}</span>
               </button>
-              <div className="mt-6 text-xl font-bold text-gray-300" style={{ fontFamily: 'system-ui' }}>
-                Tap for {formatNumber(cookiesPerClick * getPrestigeMultiplier())} cookies
+              <div className="mt-6 text-xl font-bold text-gray-200" style={{ fontFamily: 'system-ui' }}>
+                +{formatNumber(Math.floor(cookiesPerClick * getPrestigeMultiplier() * getGameModeMultiplier()))} per click
               </div>
               {criticalFailChance > 0 && (
-                <div className="mt-2 text-sm text-red-400" style={{ fontFamily: 'monospace' }}>
-                  ⚠️ {(criticalFailChance * 100).toFixed(1)}% fail (-15%)
+                <div className="mt-2 text-sm text-red-400 font-medium" style={{ fontFamily: 'monospace' }}>
+                  ⚠️ {(criticalFailChance * 100).toFixed(1)}% fail chance (-15% cookies)
+                </div>
+              )}
+              {currentMode?.chaosMode && (
+                <div className="mt-2 text-sm font-bold" style={{ 
+                  color: equippedTheme.accent,
+                  fontFamily: 'monospace'
+                }}>
+                  🌀 Chaos: {chaosMultiplier.toFixed(2)}x
                 </div>
               )}
             </div>
           </div>
           
-          {/* Right */}
+          {/* Right - Upgrades */}
           <div>
             <div className="bg-gray-900/40 backdrop-blur-sm rounded-xl border border-gray-700/50 p-6 max-h-[800px] overflow-y-auto">
               {/* Tabs */}
               <div className="flex gap-2 mb-4">
-                <button
-                  onClick={() => setActiveTab('click')}
-                  className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    activeTab === 'click' ? 'text-white' : 'text-gray-400'
-                  }`}
-                  style={{ 
-                    backgroundColor: activeTab === 'click' ? equippedTheme.accent : 'transparent',
-                    fontFamily: 'system-ui'
-                  }}
-                >
-                  Click
-                </button>
-                <button
-                  onClick={() => setActiveTab('auto')}
-                  className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    activeTab === 'auto' ? 'text-white' : 'text-gray-400'
-                  }`}
-                  style={{ 
-                    backgroundColor: activeTab === 'auto' ? equippedTheme.accent : 'transparent',
-                    fontFamily: 'system-ui'
-                  }}
-                >
-                  Auto
-                </button>
-                <button
-                  onClick={() => setActiveTab('prestige')}
-                  className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    activeTab === 'prestige' ? 'text-white' : 'text-gray-400'
-                  }`}
-                  style={{ 
-                    backgroundColor: activeTab === 'prestige' ? equippedTheme.accent : 'transparent',
-                    fontFamily: 'system-ui'
-                  }}
-                >
-                  Prestige
-                </button>
+                {['click', 'auto', 'prestige'].map(tab => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors capitalize ${
+                      activeTab === tab ? 'text-white' : 'text-gray-400'
+                    }`}
+                    style={{ 
+                      backgroundColor: activeTab === tab ? equippedTheme.accent : 'transparent',
+                      fontFamily: 'system-ui'
+                    }}
+                  >
+                    {tab}
+                  </button>
+                ))}
               </div>
               
               {/* Click upgrades */}
@@ -1290,15 +1598,26 @@ function UltimateCookieEmpire() {
                     return (
                       <div
                         key={upgrade.id}
-                        className={`bg-black/30 rounded-lg p-3 border transition-colors ${
-                          canAfford && !isMaxed ? 'border-gray-600 hover:border-gray-500' : 'border-gray-800 opacity-50'
+                        className={`bg-black/30 rounded-lg p-3 border transition-all ${
+                          canAfford && !isMaxed ? 'border-gray-600 hover:border-gray-500 hover:bg-black/40' : 'border-gray-800 opacity-50'
                         }`}
                       >
                         <div className="flex items-start gap-3">
                           <div className="text-3xl">{upgrade.icon}</div>
                           <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-white text-sm mb-1" style={{ fontFamily: 'system-ui' }}>
-                              {upgrade.name}
+                            <div className="flex items-start justify-between mb-1">
+                              <div className="font-semibold text-white text-sm" style={{ fontFamily: 'system-ui' }}>
+                                {upgrade.name}
+                              </div>
+                              {upgrade.ownerOnly && (
+                                <span className="text-xs px-2 py-0.5 rounded" style={{ 
+                                  backgroundColor: '#f9731620',
+                                  color: '#f97316',
+                                  fontFamily: 'monospace'
+                                }}>
+                                  OWNER
+                                </span>
+                              )}
                             </div>
                             <div className="text-xs text-gray-400 mb-2" style={{ fontFamily: 'system-ui' }}>
                               {upgrade.desc}
@@ -1311,7 +1630,7 @@ function UltimateCookieEmpire() {
                             <button
                               onClick={() => buyUpgrade(upgrade)}
                               disabled={!canAfford || isMaxed}
-                              className="w-full py-2 rounded-lg font-medium text-xs transition-colors disabled:cursor-not-allowed"
+                              className="w-full py-2 rounded-lg font-medium text-xs transition-all disabled:cursor-not-allowed hover:brightness-110"
                               style={{
                                 backgroundColor: canAfford && !isMaxed ? equippedTheme.accent : '#1f2937',
                                 color: canAfford && !isMaxed ? '#fff' : '#6b7280',
@@ -1342,15 +1661,26 @@ function UltimateCookieEmpire() {
                     return (
                       <div
                         key={upgrade.id}
-                        className={`bg-black/30 rounded-lg p-3 border transition-colors ${
-                          canAfford ? 'border-gray-600 hover:border-gray-500' : 'border-gray-800 opacity-50'
+                        className={`bg-black/30 rounded-lg p-3 border transition-all ${
+                          canAfford ? 'border-gray-600 hover:border-gray-500 hover:bg-black/40' : 'border-gray-800 opacity-50'
                         }`}
                       >
                         <div className="flex items-start gap-3">
                           <div className="text-3xl">{upgrade.icon}</div>
                           <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-white text-sm mb-1" style={{ fontFamily: 'system-ui' }}>
-                              {upgrade.name}
+                            <div className="flex items-start justify-between mb-1">
+                              <div className="font-semibold text-white text-sm" style={{ fontFamily: 'system-ui' }}>
+                                {upgrade.name}
+                              </div>
+                              {upgrade.ownerOnly && (
+                                <span className="text-xs px-2 py-0.5 rounded" style={{ 
+                                  backgroundColor: '#f9731620',
+                                  color: '#f97316',
+                                  fontFamily: 'monospace'
+                                }}>
+                                  OWNER
+                                </span>
+                              )}
                             </div>
                             <div className="text-xs text-gray-400 mb-2" style={{ fontFamily: 'system-ui' }}>
                               {upgrade.desc}
@@ -1363,7 +1693,7 @@ function UltimateCookieEmpire() {
                             <button
                               onClick={() => buyUpgrade(upgrade)}
                               disabled={!canAfford}
-                              className="w-full py-2 rounded-lg font-medium text-xs transition-colors disabled:cursor-not-allowed"
+                              className="w-full py-2 rounded-lg font-medium text-xs transition-all disabled:cursor-not-allowed hover:brightness-110"
                               style={{
                                 backgroundColor: canAfford ? equippedTheme.accent : '#1f2937',
                                 color: canAfford ? '#fff' : '#6b7280',
@@ -1391,14 +1721,14 @@ function UltimateCookieEmpire() {
                         </div>
                         <button
                           onClick={doPrestige}
-                          className="w-full py-3 rounded-lg font-bold transition-colors"
+                          className="w-full py-3 rounded-lg font-bold transition-all hover:brightness-110"
                           style={{
                             backgroundColor: equippedTheme.accent,
                             color: '#fff',
                             fontFamily: 'system-ui'
                           }}
                         >
-                          PRESTIGE
+                          ⚡ PRESTIGE
                         </button>
                       </div>
                       
@@ -1406,12 +1736,12 @@ function UltimateCookieEmpire() {
                         {prestigeUpgrades && prestigeUpgrades.map(pu => (
                           <div
                             key={pu.id}
-                            className={`bg-black/30 rounded-lg p-3 border ${
-                              pu.owned ? 'border-green-600' : prestigeTokens >= pu.cost ? 'border-gray-600 hover:border-gray-500' : 'border-gray-800 opacity-50'
+                            className={`bg-black/30 rounded-lg p-3 border transition-all ${
+                              pu.owned ? 'border-green-600 bg-green-900/10' : prestigeTokens >= pu.cost ? 'border-gray-600 hover:border-gray-500 hover:bg-black/40' : 'border-gray-800 opacity-50'
                             }`}
                           >
                             <div className="flex justify-between items-start mb-2">
-                              <div>
+                              <div className="flex-1">
                                 <div className="font-semibold text-white text-sm" style={{ fontFamily: 'system-ui' }}>
                                   {pu.name}
                                 </div>
@@ -1429,7 +1759,7 @@ function UltimateCookieEmpire() {
                               <button
                                 onClick={() => buyPrestigeUpgrade(pu)}
                                 disabled={prestigeTokens < pu.cost}
-                                className="w-full py-2 rounded-lg font-medium text-xs transition-colors disabled:cursor-not-allowed"
+                                className="w-full py-2 rounded-lg font-medium text-xs transition-all disabled:cursor-not-allowed hover:brightness-110"
                                 style={{
                                   backgroundColor: prestigeTokens >= pu.cost ? equippedTheme.accent : '#1f2937',
                                   color: prestigeTokens >= pu.cost ? '#fff' : '#6b7280',
@@ -1450,7 +1780,7 @@ function UltimateCookieEmpire() {
                         Reach level 30 to prestige
                       </div>
                       <div className="text-xs" style={{ fontFamily: 'monospace' }}>
-                        ({30 - level} levels)
+                        ({30 - level} levels remaining)
                       </div>
                     </div>
                   )}
@@ -1461,15 +1791,13 @@ function UltimateCookieEmpire() {
         </div>
       </div>
       
-      {/* MODALS */}
-      
-      {/* Leaderboard */}
+      {/* LEADERBOARD MODAL */}
       {showLeaderboard && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowLeaderboard(false)}>
-          <div className="bg-gray-900 rounded-xl border border-gray-700 p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-gray-900 rounded-xl border border-gray-700 p-6 max-w-3xl w-full max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-white" style={{ fontFamily: 'system-ui' }}>
-                🏆 Leaderboard
+              <h2 className="text-3xl font-black text-white" style={{ fontFamily: 'system-ui' }}>
+                🏆 Global Leaderboard
               </h2>
               <button
                 onClick={() => setShowLeaderboard(false)}
@@ -1486,60 +1814,99 @@ function UltimateCookieEmpire() {
                 {leaderboard.length === 0 ? (
                   <div className="text-center py-12 text-gray-400">No players yet</div>
                 ) : (
-                  leaderboard.map((player, index) => (
-                    <div
-                      key={player.playerId}
-                      className={`flex items-center gap-4 p-3 rounded-lg ${
-                        player.playerName === playerName ? 'bg-purple-900/40 border border-purple-500/50' : 'bg-black/30'
-                      }`}
-                    >
-                      <div className={`text-2xl font-black w-10 text-center ${
-                        index === 0 ? 'text-yellow-400' : index === 1 ? 'text-gray-300' : index === 2 ? 'text-orange-400' : 'text-gray-500'
-                      }`} style={{ fontFamily: 'system-ui' }}>
-                        #{index + 1}
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-semibold text-white" style={{ fontFamily: 'system-ui' }}>
-                          {player.playerName}
+                  leaderboard.map((player, index) => {
+                    const isCurrentPlayer = player.playerName === playerName;
+                    const hasZ3N0Tag = player.equippedCosmetics?.title === 'z3n0';
+                    const hasOwnerTag = player.equippedCosmetics?.title === 'owner';
+                    const hasModTag = player.equippedCosmetics?.title === 'moderator';
+                    
+                    return (
+                      <div
+                        key={player.playerId}
+                        className={`flex items-center gap-4 p-4 rounded-lg transition-all ${
+                          isCurrentPlayer ? 'bg-purple-900/40 border-2 border-purple-500/50 scale-105' : 'bg-black/30 border border-gray-700/50'
+                        }`}
+                      >
+                        <div className={`text-3xl font-black w-12 text-center ${
+                          index === 0 ? 'text-yellow-400' : index === 1 ? 'text-gray-300' : index === 2 ? 'text-orange-400' : 'text-gray-500'
+                        }`} style={{ fontFamily: 'system-ui' }}>
+                          {index === 0 ? '👑' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}
                         </div>
-                        <div className="text-xs text-gray-400" style={{ fontFamily: 'monospace' }}>
-                          {formatNumber(player.totalCookiesEarned || 0)} • Lvl {player.level || 0} • P{player.prestige || 0}
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="font-bold text-white text-lg" style={{ fontFamily: 'system-ui' }}>
+                              {player.playerName}
+                            </div>
+                            {hasZ3N0Tag && (
+                              <span className="px-2 py-0.5 rounded text-xs font-bold" style={{ 
+                                backgroundColor: '#8b5cf620',
+                                color: '#8b5cf6',
+                                fontFamily: 'monospace'
+                              }}>
+                                ⚡ Z3N0
+                              </span>
+                            )}
+                            {hasOwnerTag && !hasZ3N0Tag && (
+                              <span className="px-2 py-0.5 rounded text-xs font-bold" style={{ 
+                                backgroundColor: '#f9731620',
+                                color: '#f97316',
+                                fontFamily: 'monospace'
+                              }}>
+                                👑 OWNER
+                              </span>
+                            )}
+                            {hasModTag && (
+                              <span className="px-2 py-0.5 rounded text-xs font-bold" style={{ 
+                                backgroundColor: '#3b82f620',
+                                color: '#3b82f6',
+                                fontFamily: 'monospace'
+                              }}>
+                                🛡️ MOD
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-xs text-gray-400" style={{ fontFamily: 'monospace' }}>
+                            ID: {player.playerId} • {formatNumber(player.totalCookiesEarned || 0)} total • Lvl {player.level || 0} • P{player.prestige || 0}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-black" style={{ 
+                            color: equippedTheme.accent,
+                            fontFamily: 'system-ui'
+                          }}>
+                            {formatNumber((player.totalCookiesEarned || 0) + ((player.level || 0) * 1000) + ((player.prestige || 0) * 50000))}
+                          </div>
+                          <div className="text-xs text-gray-400">score</div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-lg font-bold text-purple-400" style={{ fontFamily: 'system-ui' }}>
-                          {formatNumber((player.totalCookiesEarned || 0) + ((player.level || 0) * 1000) + ((player.prestige || 0) * 50000))}
-                        </div>
-                        <div className="text-xs text-gray-400">score</div>
-                      </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             )}
             
             <button
               onClick={updateLeaderboard}
-              className="w-full mt-4 py-2 rounded-lg font-medium text-sm"
+              className="w-full mt-4 py-3 rounded-lg font-bold text-sm transition-all hover:brightness-110"
               style={{
                 backgroundColor: equippedTheme.accent,
                 color: '#fff',
                 fontFamily: 'system-ui'
               }}
             >
-              🔄 Refresh
+              🔄 Refresh Leaderboard
             </button>
           </div>
         </div>
       )}
       
-      {/* Achievements */}
+      {/* ACHIEVEMENTS MODAL */}
       {showAchievements && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowAchievements(false)}>
-          <div className="bg-gray-900 rounded-xl border border-gray-700 p-6 max-w-3xl w-full max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-gray-900 rounded-xl border border-gray-700 p-6 max-w-4xl w-full max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-white" style={{ fontFamily: 'system-ui' }}>
-                🎖️ Achievements ({achievements ? achievements.filter(a => a.unlocked).length : 0}/{achievements ? achievements.length : 0})
+              <h2 className="text-3xl font-black text-white" style={{ fontFamily: 'system-ui' }}>
+                🎖️ Achievements ({achievements.filter(a => a.unlocked).length}/{achievements.length})
               </h2>
               <button
                 onClick={() => setShowAchievements(false)}
@@ -1550,23 +1917,23 @@ function UltimateCookieEmpire() {
             </div>
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {achievements && achievements.map(ach => (
+              {achievements.map(ach => (
                 <div
                   key={ach.id}
-                  className={`p-4 rounded-lg border text-center ${
-                    ach.unlocked ? 'bg-yellow-900/20 border-yellow-500/50' : 'bg-black/30 border-gray-700 opacity-40'
+                  className={`p-4 rounded-lg border text-center transition-all ${
+                    ach.unlocked ? 'bg-yellow-900/20 border-yellow-500/50 scale-105' : 'bg-black/30 border-gray-700 opacity-40 grayscale'
                   }`}
                 >
-                  <div className="text-4xl mb-2">{ach.icon}</div>
-                  <div className="text-xs font-semibold text-white mb-1" style={{ fontFamily: 'system-ui' }}>
+                  <div className="text-5xl mb-2">{ach.icon}</div>
+                  <div className="text-sm font-bold text-white mb-1" style={{ fontFamily: 'system-ui' }}>
                     {ach.name}
                   </div>
-                  <div className="text-xs text-gray-400" style={{ fontFamily: 'system-ui' }}>
+                  <div className="text-xs text-gray-400 mb-2" style={{ fontFamily: 'system-ui' }}>
                     {ach.desc}
                   </div>
                   {ach.unlocked && (
-                    <div className="text-xs text-yellow-400 mt-1" style={{ fontFamily: 'monospace' }}>
-                      +{formatNumber(ach.reward)}
+                    <div className="text-xs text-yellow-400 font-bold" style={{ fontFamily: 'monospace' }}>
+                      +{formatNumber(ach.reward)} 🍪
                     </div>
                   )}
                 </div>
@@ -1576,14 +1943,147 @@ function UltimateCookieEmpire() {
         </div>
       )}
       
-      {/* Cosmetics Shop - abbreviated for space */}
+      {/* GAME MODES MODAL */}
+      {showGameModes && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowGameModes(false)}>
+          <div className="bg-gray-900 rounded-xl border border-gray-700 p-6 max-w-3xl w-full max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-3xl font-black text-white" style={{ fontFamily: 'system-ui' }}>
+                🎮 Game Modes
+              </h2>
+              <button
+                onClick={() => setShowGameModes(false)}
+                className="text-gray-400 hover:text-white text-2xl"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-4">
+              {gameModes.map(mode => {
+                const isActive = currentGameMode === mode.id;
+                const canUse = mode.unlocked || (mode.ownerOnly && isOwner);
+                
+                return (
+                  <div
+                    key={mode.id}
+                    className={`p-5 rounded-lg border-2 transition-all ${
+                      isActive ? 'border-purple-500 bg-purple-900/20 scale-105' : 
+                      canUse ? 'border-gray-600 bg-black/30 hover:border-gray-500' : 
+                      'border-gray-800 bg-black/20 opacity-50'
+                    }`}
+                  >
+                    <div className="flex items-start gap-4 mb-4">
+                      <div className="text-5xl">{mode.icon}</div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="text-xl font-bold text-white" style={{ fontFamily: 'system-ui' }}>
+                            {mode.name}
+                          </h3>
+                          {mode.ownerOnly && (
+                            <span className="px-2 py-0.5 rounded text-xs font-bold" style={{ 
+                              backgroundColor: '#f9731620',
+                              color: '#f97316',
+                              fontFamily: 'monospace'
+                            }}>
+                              OWNER
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-400" style={{ fontFamily: 'system-ui' }}>
+                          {mode.desc}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {mode.unlockRequirement && !mode.unlocked && (
+                      <div className="text-xs text-yellow-400 mb-3" style={{ fontFamily: 'monospace' }}>
+                        🔒 Unlock: {mode.unlockRequirement.level && `Level ${mode.unlockRequirement.level}`}
+                        {mode.unlockRequirement.prestige && `Prestige ${mode.unlockRequirement.prestige}`}
+                      </div>
+                    )}
+                    
+                    {canUse && (
+                      <button
+                        onClick={() => {
+                          setCurrentGameMode(mode.id);
+                          createNotification(`${mode.icon} ${mode.name} activated!`);
+                        }}
+                        disabled={isActive}
+                        className={`w-full py-2 rounded-lg font-bold text-sm transition-all ${
+                          isActive ? 'cursor-not-allowed' : 'hover:brightness-110'
+                        }`}
+                        style={{
+                          backgroundColor: isActive ? '#10b981' : equippedTheme.accent,
+                          color: '#fff',
+                          fontFamily: 'system-ui'
+                        }}
+                      >
+                        {isActive ? '✓ Active' : 'Activate'}
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* STATS MODAL */}
+      {showStats && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowStats(false)}>
+          <div className="bg-gray-900 rounded-xl border border-gray-700 p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-3xl font-black text-white" style={{ fontFamily: 'system-ui' }}>
+                📊 Your Statistics
+              </h2>
+              <button
+                onClick={() => setShowStats(false)}
+                className="text-gray-400 hover:text-white text-2xl"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-4">
+              {[
+                { label: 'Total Cookies Earned', value: formatNumber(totalCookiesEarned), icon: '🍪' },
+                { label: 'Total Clicks', value: formatNumber(totalClicks), icon: '👆' },
+                { label: 'Current Level', value: level, icon: '⭐' },
+                { label: 'Total Prestiges', value: stats.totalPrestige, icon: '🌟' },
+                { label: 'Achievements Unlocked', value: `${stats.achievementsUnlocked}/${achievements.length}`, icon: '🏆' },
+                { label: 'Cosmetics Owned', value: stats.cosmeticsUnlocked, icon: '🎨' },
+                { label: 'Fastest Click Speed', value: stats.fastestClick === Infinity ? 'N/A' : `${stats.fastestClick}ms`, icon: '⚡' },
+                { label: 'Longest Combo Streak', value: stats.longestStreak, icon: '🔥' },
+                { label: 'Critical Failures', value: criticalFails, icon: '💀' },
+                { label: 'Current CPS', value: formatNumber(Math.floor(cookiesPerSecond * getPrestigeMultiplier() * getGameModeMultiplier())), icon: '🏭' },
+                { label: 'Current CPC', value: formatNumber(Math.floor(cookiesPerClick * getPrestigeMultiplier() * getGameModeMultiplier())), icon: '👊' },
+                { label: 'Production Multiplier', value: `${getPrestigeMultiplier().toFixed(2)}x`, icon: '📈' },
+              ].map(stat => (
+                <div key={stat.label} className="bg-black/30 rounded-lg p-4 border border-gray-700/50">
+                  <div className="text-3xl mb-2">{stat.icon}</div>
+                  <div className="text-sm text-gray-400 mb-1" style={{ fontFamily: 'system-ui' }}>
+                    {stat.label}
+                  </div>
+                  <div className="text-2xl font-bold text-white" style={{ fontFamily: 'system-ui' }}>
+                    {stat.value}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* COSMETICS SHOP MODAL */}
       {showCosmeticsShop && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 overflow-y-auto p-4" onClick={() => setShowCosmeticsShop(false)}>
-          <div className="max-w-5xl mx-auto my-8" onClick={(e) => e.stopPropagation()}>
+          <div className="max-w-6xl mx-auto my-8" onClick={(e) => e.stopPropagation()}>
             <div className="bg-gray-900 rounded-xl border border-gray-700 p-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-white" style={{ fontFamily: 'system-ui' }}>
-                  🛒 Shop
+                <h2 className="text-3xl font-black text-white" style={{ fontFamily: 'system-ui' }}>
+                  🛒 Cosmetics Shop
                 </h2>
                 <button onClick={() => setShowCosmeticsShop(false)} className="text-gray-400 hover:text-white text-2xl">
                   ✕
@@ -1591,15 +2091,15 @@ function UltimateCookieEmpire() {
               </div>
               
               <div className="mb-6 text-center">
-                <div className="text-xl font-bold text-yellow-400" style={{ fontFamily: 'system-ui' }}>
+                <div className="text-2xl font-black text-yellow-400" style={{ fontFamily: 'system-ui' }}>
                   {formatNumber(cookies)} 🍪
                 </div>
               </div>
               
               {/* Cookie skins */}
-              <div className="mb-6">
-                <h3 className="text-lg font-bold text-white mb-3" style={{ fontFamily: 'system-ui' }}>
-                  Cookie Skins
+              <div className="mb-8">
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2" style={{ fontFamily: 'system-ui' }}>
+                  <span>🍪</span> Cookie Skins
                 </h3>
                 <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
                   {COSMETICS.cookies.map(cookie => {
@@ -1611,305 +2111,407 @@ function UltimateCookieEmpire() {
                         key={cookie.id}
                         onClick={() => !owned && canAfford && buyCosmetic('cookie', cookie)}
                         disabled={owned || !canAfford}
-                        className={`p-3 rounded-lg border transition-all ${
+                        className={`p-4 rounded-lg border transition-all hover:scale-105 ${
                           owned ? 'bg-green-900/40 border-green-500' : canAfford ? 'bg-black/30 border-gray-600 hover:border-gray-500' : 'bg-black/20 border-gray-800 opacity-40'
                         }`}
                       >
-                        <div className="text-4xl mb-2">{cookie.emoji}</div>
-                        <div className="text-xs font-semibold mb-1" style={{ color: getRarityColor(cookie.rarity), fontFamily: 'system-ui' }}>
+                        <div className="text-5xl mb-2">{cookie.emoji}</div>
+                        <div className="text-xs font-bold mb-1" style={{ color: getRarityColor(cookie.rarity), fontFamily: 'system-ui' }}>
                           {cookie.name}
                         </div>
                         <div className="text-xs text-yellow-400" style={{ fontFamily: 'monospace' }}>
                           {cookie.cost === 0 ? 'FREE' : formatNumber(cookie.cost)}
                         </div>
-                        {owned && <div className="text-xs text-green-400 mt-1">✓</div>}
+                        {owned && <div className="text-xs text-green-400 mt-1 font-bold">✓ OWNED</div>}
                       </button>
                     );
                   })}
                 </div>
               </div>
               
-              {/* Similar sections for themes, effects, titles... */}
+              {/* Themes */}
+              <div className="mb-8">
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2" style={{ fontFamily: 'system-ui' }}>
+                  <span>🎨</span> Themes
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {COSMETICS.themes.map(theme => {
+                    const owned = ownedCosmetics.themes.includes(theme.id);
+                    const canAfford = cookies >= theme.cost;
+                    
+                    return (
+                      <button
+                        key={theme.id}
+                        onClick={() => !owned && canAfford && buyCosmetic('theme', theme)}
+                        disabled={owned || !canAfford}
+                        className={`p-4 rounded-lg border transition-all hover:scale-105 ${
+                          owned ? 'bg-green-900/40 border-green-500' : canAfford ? 'bg-black/30 border-gray-600 hover:border-gray-500' : 'bg-black/20 border-gray-800 opacity-40'
+                        }`}
+                      >
+                        <div className="h-12 rounded mb-3" style={{ 
+                          background: `linear-gradient(135deg, ${theme.accent} 0%, ${theme.secondary} 100%)`
+                        }} />
+                        <div className="text-xs font-bold mb-1" style={{ color: getRarityColor(theme.rarity), fontFamily: 'system-ui' }}>
+                          {theme.name}
+                        </div>
+                        <div className="text-xs text-yellow-400" style={{ fontFamily: 'monospace' }}>
+                          {theme.cost === 0 ? 'FREE' : formatNumber(theme.cost)}
+                        </div>
+                        {owned && <div className="text-xs text-green-400 mt-1 font-bold">✓ OWNED</div>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              
+              {/* Effects */}
+              <div className="mb-8">
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2" style={{ fontFamily: 'system-ui' }}>
+                  <span>✨</span> Click Effects
+                </h3>
+                <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
+                  {COSMETICS.effects.map(effect => {
+                    const owned = ownedCosmetics.effects.includes(effect.id);
+                    const canAfford = cookies >= effect.cost;
+                    
+                    return (
+                      <button
+                        key={effect.id}
+                        onClick={() => !owned && canAfford && buyCosmetic('effect', effect)}
+                        disabled={owned || !canAfford}
+                        className={`p-4 rounded-lg border transition-all hover:scale-105 ${
+                          owned ? 'bg-green-900/40 border-green-500' : canAfford ? 'bg-black/30 border-gray-600 hover:border-gray-500' : 'bg-black/20 border-gray-800 opacity-40'
+                        }`}
+                      >
+                        <div className="text-xs font-bold mb-1" style={{ color: getRarityColor(effect.rarity), fontFamily: 'system-ui' }}>
+                          {effect.name}
+                        </div>
+                        <div className="text-xs text-yellow-400" style={{ fontFamily: 'monospace' }}>
+                          {effect.cost === 0 ? 'FREE' : formatNumber(effect.cost)}
+                        </div>
+                        {owned && <div className="text-xs text-green-400 mt-1 font-bold">✓ OWNED</div>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              
+              {/* Titles */}
+              <div className="mb-8">
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2" style={{ fontFamily: 'system-ui' }}>
+                  <span>👑</span> Titles
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {COSMETICS.titles.filter(t => !t.ownerOnly && !t.staffOnly && !t.creatorOnly).map(title => {
+                    const owned = ownedCosmetics.titles.includes(title.id);
+                    const canAfford = cookies >= title.cost;
+                    
+                    return (
+                      <button
+                        key={title.id}
+                        onClick={() => !owned && canAfford && buyCosmetic('title', title)}
+                        disabled={owned || !canAfford}
+                        className={`p-4 rounded-lg border transition-all hover:scale-105 ${
+                          owned ? 'bg-green-900/40 border-green-500' : canAfford ? 'bg-black/30 border-gray-600 hover:border-gray-500' : 'bg-black/20 border-gray-800 opacity-40'
+                        }`}
+                      >
+                        <div className="text-sm font-bold mb-2" style={{ color: getRarityColor(title.rarity), fontFamily: 'system-ui' }}>
+                          {title.display || title.name}
+                        </div>
+                        <div className="text-xs text-yellow-400" style={{ fontFamily: 'monospace' }}>
+                          {title.cost === 0 ? 'FREE' : formatNumber(title.cost)}
+                        </div>
+                        {owned && <div className="text-xs text-green-400 mt-1 font-bold">✓ OWNED</div>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              
+              {/* Badges */}
+              <div>
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2" style={{ fontFamily: 'system-ui' }}>
+                  <span>🎖️</span> Badges
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {COSMETICS.badges.map(badge => {
+                    const owned = ownedCosmetics.badges?.includes(badge.id);
+                    const canAfford = cookies >= badge.cost;
+                    
+                    return (
+                      <button
+                        key={badge.id}
+                        onClick={() => !owned && canAfford && buyCosmetic('badge', badge)}
+                        disabled={owned || !canAfford}
+                        className={`p-4 rounded-lg border transition-all hover:scale-105 ${
+                          owned ? 'bg-green-900/40 border-green-500' : canAfford ? 'bg-black/30 border-gray-600 hover:border-gray-500' : 'bg-black/20 border-gray-800 opacity-40'
+                        }`}
+                      >
+                        <div className="text-4xl mb-2">{badge.emoji}</div>
+                        <div className="text-xs font-bold mb-1" style={{ color: getRarityColor(badge.rarity), fontFamily: 'system-ui' }}>
+                          {badge.name}
+                        </div>
+                        <div className="text-xs text-yellow-400" style={{ fontFamily: 'monospace' }}>
+                          {formatNumber(badge.cost)}
+                        </div>
+                        {owned && <div className="text-xs text-green-400 mt-1 font-bold">✓ OWNED</div>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
         </div>
       )}
       
-      {/* Wardrobe - abbreviated */}
+      {/* COSMETICS WARDROBE MODAL */}
       {showCosmeticsMenu && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 overflow-y-auto p-4" onClick={() => setShowCosmeticsMenu(false)}>
-          <div className="max-w-5xl mx-auto my-8" onClick={(e) => e.stopPropagation()}>
+          <div className="max-w-6xl mx-auto my-8" onClick={(e) => e.stopPropagation()}>
             <div className="bg-gray-900 rounded-xl border border-gray-700 p-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-white" style={{ fontFamily: 'system-ui' }}>
-                  🎨 Wardrobe
+                <h2 className="text-3xl font-black text-white" style={{ fontFamily: 'system-ui' }}>
+                  🎨 Your Wardrobe
                 </h2>
                 <button onClick={() => setShowCosmeticsMenu(false)} className="text-gray-400 hover:text-white text-2xl">
                   ✕
                 </button>
               </div>
-              {/* Similar content as shop but for equipped items */}
+              
+              {/* Gifts received */}
+              {cosmeticGifts && cosmeticGifts.length > 0 && (
+                <div className="mb-6 bg-purple-900/20 border border-purple-500/30 rounded-lg p-4">
+                  <h3 className="text-sm font-bold text-purple-300 mb-3" style={{ fontFamily: 'system-ui' }}>
+                    🎁 Gifts Received
+                  </h3>
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {cosmeticGifts.slice(0, 5).map(gift => (
+                      <div key={gift.id} className="text-xs text-gray-300" style={{ fontFamily: 'monospace' }}>
+                        {gift.cosmeticName} from <span className="text-purple-400 font-bold">{gift.from}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Owned Cookies */}
+              <div className="mb-6">
+                <h3 className="text-lg font-bold text-white mb-3" style={{ fontFamily: 'system-ui' }}>
+                  Cookie Skins
+                </h3>
+                <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
+                  {[...COSMETICS.cookies, ...(isOwner ? OWNER_COSMETICS.cookies : [])].filter(c => ownedCosmetics.cookies.includes(c.id)).map(cookie => (
+                    <button
+                      key={cookie.id}
+                      onClick={() => equipCosmetic('cookie', cookie.id)}
+                      className={`p-3 rounded-lg border-2 transition-all hover:scale-110 ${
+                        equippedCosmetics.cookie === cookie.id ? 'border-purple-500 bg-purple-900/30' : 'border-gray-700 bg-black/30'
+                      }`}
+                    >
+                      <div className="text-4xl">{cookie.emoji}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Owned Themes */}
+              <div className="mb-6">
+                <h3 className="text-lg font-bold text-white mb-3" style={{ fontFamily: 'system-ui' }}>
+                  Themes
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {[...COSMETICS.themes, ...(isOwner ? OWNER_COSMETICS.themes : []), ...(isModerator ? MOD_COSMETICS.themes : [])].filter(t => ownedCosmetics.themes.includes(t.id)).map(theme => (
+                    <button
+                      key={theme.id}
+                      onClick={() => equipCosmetic('theme', theme.id)}
+                      className={`p-3 rounded-lg border-2 transition-all hover:scale-105 ${
+                        equippedCosmetics.theme === theme.id ? 'border-purple-500 bg-purple-900/30' : 'border-gray-700 bg-black/30'
+                      }`}
+                    >
+                      <div className="h-12 rounded mb-2" style={{ 
+                        background: `linear-gradient(135deg, ${theme.accent} 0%, ${theme.secondary} 100%)`
+                      }} />
+                      <div className="text-xs font-bold text-white" style={{ fontFamily: 'system-ui' }}>
+                        {theme.name}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Owned Titles */}
+              <div>
+                <h3 className="text-lg font-bold text-white mb-3" style={{ fontFamily: 'system-ui' }}>
+                  Titles
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {COSMETICS.titles.filter(t => ownedCosmetics.titles.includes(t.id)).map(title => (
+                    <button
+                      key={title.id}
+                      onClick={() => equipCosmetic('title', title.id)}
+                      className={`p-3 rounded-lg border-2 transition-all hover:scale-105 ${
+                        equippedCosmetics.title === title.id ? 'border-purple-500 bg-purple-900/30' : 'border-gray-700 bg-black/30'
+                      }`}
+                    >
+                      <div className="text-sm font-bold" style={{ color: getRarityColor(title.rarity), fontFamily: 'system-ui' }}>
+                        {title.display || title.name}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
       )}
       
-      {/* OWNER PANEL - MASSIVELY ENHANCED */}
+      {/* OWNER PANEL - ULTIMATE VERSION */}
       {isOwner && ownerPanelOpen && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 overflow-y-auto p-4" onClick={() => setOwnerPanelOpen(false)}>
-          <div className="max-w-6xl mx-auto my-8" onClick={(e) => e.stopPropagation()}>
-            <div className="bg-gray-900 rounded-xl border border-orange-500 p-6">
+          <div className="max-w-7xl mx-auto my-8" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-gradient-to-br from-orange-900/20 to-red-900/20 rounded-xl border-2 border-orange-500 p-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-3xl font-black text-orange-400" style={{ fontFamily: 'system-ui' }}>
-                  👑 OWNER DASHBOARD
+                <h2 className="text-4xl font-black text-orange-400" style={{ fontFamily: 'system-ui' }}>
+                  👑 OWNER CONTROL PANEL
                 </h2>
-                <button onClick={() => setOwnerPanelOpen(false)} className="text-gray-400 hover:text-white text-2xl">
+                <button onClick={() => setOwnerPanelOpen(false)} className="text-gray-400 hover:text-white text-3xl">
                   ✕
                 </button>
               </div>
               
               {/* Owner tabs */}
-              <div className="flex gap-2 mb-6">
-                <button
-                  onClick={() => setOwnerTab('quick')}
-                  className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-                    ownerTab === 'quick' ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400'
-                  }`}
-                  style={{ fontFamily: 'system-ui' }}
-                >
-                  Quick Actions
-                </button>
-                <button
-                  onClick={() => setOwnerTab('players')}
-                  className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-                    ownerTab === 'players' ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400'
-                  }`}
-                  style={{ fontFamily: 'system-ui' }}
-                >
-                  Player Management
-                </button>
-                <button
-                  onClick={() => setOwnerTab('stats')}
-                  className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-                    ownerTab === 'stats' ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400'
-                  }`}
-                  style={{ fontFamily: 'system-ui' }}
-                >
-                  Stats & Analytics
-                </button>
+              <div className="flex gap-2 mb-6 flex-wrap">
+                {['quick', 'players', 'cosmetics', 'economy', 'stats'].map(tab => (
+                  <button
+                    key={tab}
+                    onClick={() => setOwnerTab(tab)}
+                    className={`px-4 py-2 rounded-lg font-bold text-sm transition-all capitalize ${
+                      ownerTab === tab ? 'bg-orange-600 text-white scale-105' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                    }`}
+                    style={{ fontFamily: 'system-ui' }}
+                  >
+                    {tab === 'quick' && '⚡'}
+                    {tab === 'players' && '👥'}
+                    {tab === 'cosmetics' && '🎨'}
+                    {tab === 'economy' && '💰'}
+                    {tab === 'stats' && '📊'}
+                    {' '}{tab}
+                  </button>
+                ))}
               </div>
               
-              {/* Quick actions */}
+              {/* Quick Actions */}
               {ownerTab === 'quick' && (
                 <div className="space-y-6">
-                  {/* Personal cheats */}
                   <div>
-                    <h3 className="text-lg font-bold text-orange-400 mb-3" style={{ fontFamily: 'system-ui' }}>
-                      Personal Cheats
+                    <h3 className="text-xl font-bold text-orange-400 mb-4" style={{ fontFamily: 'system-ui' }}>
+                      ⚡ Quick Commands
                     </h3>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      <button
-                        onClick={() => setCookies(c => c + 1000000)}
-                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
-                        style={{ fontFamily: 'system-ui' }}
-                      >
-                        +1M Cookies
-                      </button>
-                      <button
-                        onClick={() => setCookies(c => c + 1000000000)}
-                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
-                        style={{ fontFamily: 'system-ui' }}
-                      >
-                        +1B Cookies
-                      </button>
-                      <button
-                        onClick={() => setCookies(c => c + 1000000000000)}
-                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
-                        style={{ fontFamily: 'system-ui' }}
-                      >
-                        +1T Cookies
-                      </button>
-                      <button
-                        onClick={() => setLevel(100)}
-                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
-                        style={{ fontFamily: 'system-ui' }}
-                      >
-                        Level 100
-                      </button>
-                      <button
-                        onClick={() => setLevel(500)}
-                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
-                        style={{ fontFamily: 'system-ui' }}
-                      >
-                        Level 500
-                      </button>
-                      <button
-                        onClick={() => setPrestige(50)}
-                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
-                        style={{ fontFamily: 'system-ui' }}
-                      >
-                        Prestige 50
-                      </button>
-                      <button
-                        onClick={() => setPrestige(100)}
-                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
-                        style={{ fontFamily: 'system-ui' }}
-                      >
-                        Prestige 100
-                      </button>
-                      <button
-                        onClick={() => setPrestigeTokens(9999)}
-                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
-                        style={{ fontFamily: 'system-ui' }}
-                      >
-                        9999 Tokens
-                      </button>
-                      <button
-                        onClick={() => setPrestigeTokens(99999)}
-                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
-                        style={{ fontFamily: 'system-ui' }}
-                      >
-                        99999 Tokens
-                      </button>
-                      <button
-                        onClick={() => setCookiesPerSecond(999999999)}
-                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
-                        style={{ fontFamily: 'system-ui' }}
-                      >
-                        Max CPS
-                      </button>
-                      <button
-                        onClick={() => setCookiesPerClick(999999999)}
-                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
-                        style={{ fontFamily: 'system-ui' }}
-                      >
-                        Max CPC
-                      </button>
-                      <button
-                        onClick={() => {
-                          if (achievements) {
-                            setAchievements(ach => ach.map(a => ({ ...a, unlocked: true })));
-                          }
-                          createNotification('✓ All achievements');
-                        }}
-                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
-                        style={{ fontFamily: 'system-ui' }}
-                      >
-                        All Achievements
-                      </button>
-                      <button
-                        onClick={() => {
-                          setOwnedCosmetics({
-                            cookies: [...COSMETICS.cookies.map(c => c.id), ...OWNER_COSMETICS.cookies.map(c => c.id)],
-                            themes: [...COSMETICS.themes.map(t => t.id), ...OWNER_COSMETICS.themes.map(t => t.id)],
-                            effects: COSMETICS.effects.map(e => e.id),
-                            titles: COSMETICS.titles.map(t => t.id)
-                          });
-                          createNotification('✓ All cosmetics');
-                        }}
-                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
-                        style={{ fontFamily: 'system-ui' }}
-                      >
-                        All Cosmetics
-                      </button>
-                      <button
-                        onClick={() => {
-                          setCriticalFails(0);
-                          createNotification('✓ Reset critical fails');
-                        }}
-                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
-                        style={{ fontFamily: 'system-ui' }}
-                      >
-                        Reset Crit Fails
-                      </button>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {[
+                        { label: '+1M Cookies', action: () => setCookies(c => c + 1000000) },
+                        { label: '+1B Cookies', action: () => setCookies(c => c + 1000000000) },
+                        { label: '+1T Cookies', action: () => setCookies(c => c + 1000000000000) },
+                        { label: 'Max Cookies', action: () => setCookies(Number.MAX_SAFE_INTEGER) },
+                        { label: 'Level 100', action: () => setLevel(100) },
+                        { label: 'Level 500', action: () => setLevel(500) },
+                        { label: 'Level 999', action: () => setLevel(999) },
+                        { label: 'Prestige 50', action: () => setPrestige(50) },
+                        { label: 'Prestige 100', action: () => setPrestige(100) },
+                        { label: '9999 Tokens', action: () => setPrestigeTokens(9999) },
+                        { label: 'Max CPS', action: () => setCookiesPerSecond(999999999) },
+                        { label: 'Max CPC', action: () => setCookiesPerClick(999999999) },
+                        { label: 'All Achievements', action: () => setAchievements(ach => ach.map(a => ({ ...a, unlocked: true }))) },
+                        { label: 'All Cosmetics', action: () => setOwnedCosmetics({
+                          cookies: [...COSMETICS.cookies.map(c => c.id), ...OWNER_COSMETICS.cookies.map(c => c.id)],
+                          themes: [...COSMETICS.themes.map(t => t.id), ...OWNER_COSMETICS.themes.map(t => t.id)],
+                          effects: COSMETICS.effects.map(e => e.id),
+                          titles: COSMETICS.titles.map(t => t.id),
+                          badges: COSMETICS.badges.map(b => b.id)
+                        }) },
+                        { label: 'All Game Modes', action: () => setGameModes(modes => modes.map(m => ({ ...m, unlocked: true }))) },
+                        { label: 'Reset Fails', action: () => setCriticalFails(0) },
+                      ].map(cmd => (
+                        <button
+                          key={cmd.label}
+                          onClick={() => {
+                            cmd.action();
+                            createNotification(`✓ ${cmd.label}`);
+                          }}
+                          className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-bold text-sm transition-all hover:scale-105"
+                          style={{ fontFamily: 'system-ui' }}
+                        >
+                          {cmd.label}
+                        </button>
+                      ))}
                       <button
                         onClick={ownerGodMode}
-                        className="bg-yellow-600 hover:bg-yellow-500 px-4 py-3 rounded-lg font-bold text-sm transition-colors col-span-2"
+                        className="bg-yellow-600 hover:bg-yellow-500 px-4 py-3 rounded-lg font-black text-sm transition-all hover:scale-105 col-span-2"
                         style={{ fontFamily: 'system-ui' }}
                       >
-                        👑 FULL GOD MODE
+                        👑 ULTIMATE GOD MODE
                       </button>
                     </div>
                   </div>
                   
-                  {/* Current stats */}
-                  <div className="bg-black/30 rounded-lg p-4 border border-gray-700">
-                    <h3 className="text-lg font-bold text-white mb-3" style={{ fontFamily: 'system-ui' }}>
-                      Your Current Stats
+                  {/* Current stats display */}
+                  <div className="bg-black/30 rounded-lg p-5 border border-orange-500/30">
+                    <h3 className="text-lg font-bold text-white mb-4" style={{ fontFamily: 'system-ui' }}>
+                      Your Current Status
                     </h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm" style={{ fontFamily: 'monospace' }}>
-                      <div>
-                        <div className="text-gray-400">Cookies</div>
-                        <div className="text-white font-bold">{formatNumber(cookies)}</div>
-                      </div>
-                      <div>
-                        <div className="text-gray-400">CPC</div>
-                        <div className="text-white font-bold">{formatNumber(cookiesPerClick)}</div>
-                      </div>
-                      <div>
-                        <div className="text-gray-400">CPS</div>
-                        <div className="text-white font-bold">{formatNumber(cookiesPerSecond)}</div>
-                      </div>
-                      <div>
-                        <div className="text-gray-400">Level</div>
-                        <div className="text-white font-bold">{level}</div>
-                      </div>
-                      <div>
-                        <div className="text-gray-400">Prestige</div>
-                        <div className="text-white font-bold">{prestige}</div>
-                      </div>
-                      <div>
-                        <div className="text-gray-400">Tokens</div>
-                        <div className="text-white font-bold">{prestigeTokens}</div>
-                      </div>
-                      <div>
-                        <div className="text-gray-400">Total Earned</div>
-                        <div className="text-white font-bold">{formatNumber(totalCookiesEarned)}</div>
-                      </div>
-                      <div>
-                        <div className="text-gray-400">Total Clicks</div>
-                        <div className="text-white font-bold">{formatNumber(totalClicks)}</div>
-                      </div>
-                      <div>
-                        <div className="text-gray-400">Crit Fails</div>
-                        <div className="text-white font-bold">{criticalFails}</div>
-                      </div>
-                      <div>
-                        <div className="text-gray-400">Multiplier</div>
-                        <div className="text-white font-bold">x{getPrestigeMultiplier().toFixed(2)}</div>
-                      </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm" style={{ fontFamily: 'monospace' }}>
+                      {[
+                        { label: 'Cookies', value: formatNumber(cookies) },
+                        { label: 'CPC', value: formatNumber(cookiesPerClick) },
+                        { label: 'CPS', value: formatNumber(cookiesPerSecond) },
+                        { label: 'Level', value: level },
+                        { label: 'Prestige', value: prestige },
+                        { label: 'Tokens', value: prestigeTokens },
+                        { label: 'Total Earned', value: formatNumber(totalCookiesEarned) },
+                        { label: 'Total Clicks', value: formatNumber(totalClicks) },
+                      ].map(stat => (
+                        <div key={stat.label}>
+                          <div className="text-gray-400">{stat.label}</div>
+                          <div className="text-orange-400 font-bold text-lg">{stat.value}</div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
               )}
               
-              {/* Player management */}
+              {/* Player Management */}
               {ownerTab === 'players' && (
-                <div className="space-y-4">
+                <div>
                   <div className="flex gap-3 mb-4">
                     <input
                       type="text"
-                      value={ownerSearchQuery}
-                      onChange={(e) => setOwnerSearchQuery(e.target.value)}
-                      placeholder="Search players..."
-                      className="flex-1 bg-black/50 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-orange-500"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search players by name or ID..."
+                      className="flex-1 bg-black/50 border border-orange-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-orange-500"
                       style={{ fontFamily: 'system-ui' }}
                     />
                     <button
                       onClick={loadAllPlayers}
-                      className="bg-orange-600 hover:bg-orange-500 px-4 py-2 rounded-lg font-medium text-sm"
+                      className="bg-orange-600 hover:bg-orange-500 px-6 py-3 rounded-lg font-bold transition-all"
                       style={{ fontFamily: 'system-ui' }}
                     >
                       🔄 Refresh
                     </button>
                   </div>
                   
-                  <div className="space-y-2 max-h-[500px] overflow-y-auto">
+                  <div className="text-sm text-gray-400 mb-4" style={{ fontFamily: 'monospace' }}>
+                    Total Players: {allPlayers.length} • Showing: {filteredPlayers.length}
+                  </div>
+                  
+                  <div className="space-y-3 max-h-[600px] overflow-y-auto">
                     {filteredPlayers.map(player => (
-                      <div key={player.playerId} className="bg-black/30 rounded-lg p-4 border border-gray-700">
+                      <div key={player.playerId} className="bg-black/40 rounded-lg p-4 border border-orange-500/20">
                         <div className="flex justify-between items-start mb-3">
                           <div>
-                            <div className="font-bold text-white" style={{ fontFamily: 'system-ui' }}>
+                            <div className="font-bold text-white text-lg" style={{ fontFamily: 'system-ui' }}>
                               {player.playerName || 'Unknown'}
                             </div>
                             <div className="text-xs text-gray-400" style={{ fontFamily: 'monospace' }}>
@@ -1918,254 +2520,178 @@ function UltimateCookieEmpire() {
                           </div>
                           <button
                             onClick={() => setSelectedPlayer(player.playerId === selectedPlayer ? null : player.playerId)}
-                            className="text-orange-400 hover:text-orange-300 text-sm"
+                            className="text-orange-400 hover:text-orange-300 font-bold"
                           >
-                            {selectedPlayer === player.playerId ? '▼' : '▶'}
+                            {selectedPlayer === player.playerId ? '▼ Close' : '▶ Manage'}
                           </button>
                         </div>
                         
                         {selectedPlayer === player.playerId && (
-                          <div className="space-y-3">
-                            <div className="grid grid-cols-2 gap-2 text-xs" style={{ fontFamily: 'monospace' }}>
+                          <div className="space-y-4 mt-4 border-t border-gray-700 pt-4">
+                            {/* Player stats */}
+                            <div className="grid grid-cols-3 gap-3 text-xs" style={{ fontFamily: 'monospace' }}>
                               <div>
                                 <span className="text-gray-400">Cookies:</span>
-                                <span className="text-white ml-2">{formatNumber(player.cookies || 0)}</span>
+                                <span className="text-white ml-2 font-bold">{formatNumber(player.cookies || 0)}</span>
                               </div>
                               <div>
                                 <span className="text-gray-400">CPC:</span>
-                                <span className="text-white ml-2">{formatNumber(player.cookiesPerClick || 1)}</span>
+                                <span className="text-white ml-2 font-bold">{formatNumber(player.cookiesPerClick || 1)}</span>
                               </div>
                               <div>
                                 <span className="text-gray-400">CPS:</span>
-                                <span className="text-white ml-2">{formatNumber(player.cookiesPerSecond || 0)}</span>
+                                <span className="text-white ml-2 font-bold">{formatNumber(player.cookiesPerSecond || 0)}</span>
                               </div>
                               <div>
                                 <span className="text-gray-400">Level:</span>
-                                <span className="text-white ml-2">{player.level || 0}</span>
+                                <span className="text-white ml-2 font-bold">{player.level || 0}</span>
                               </div>
                               <div>
                                 <span className="text-gray-400">Prestige:</span>
-                                <span className="text-white ml-2">{player.prestige || 0}</span>
+                                <span className="text-white ml-2 font-bold">{player.prestige || 0}</span>
                               </div>
                               <div>
                                 <span className="text-gray-400">Total:</span>
-                                <span className="text-white ml-2">{formatNumber(player.totalCookiesEarned || 0)}</span>
+                                <span className="text-white ml-2 font-bold">{formatNumber(player.totalCookiesEarned || 0)}</span>
                               </div>
                             </div>
                             
-                            {/* Give cookies/stats */}
-                            <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-600">
-                              <h4 className="text-sm font-bold text-orange-400 mb-2" style={{ fontFamily: 'system-ui' }}>
-                                Give Resources
+                            {/* Give resources */}
+                            <div className="bg-orange-900/20 rounded-lg p-3 border border-orange-500/30">
+                              <h4 className="text-sm font-bold text-orange-400 mb-3" style={{ fontFamily: 'system-ui' }}>
+                                💰 Give Resources
                               </h4>
                               <div className="grid grid-cols-2 gap-2">
-                                <button
-                                  onClick={async () => {
+                                {[
+                                  { label: '💰 Give Cookies', action: async () => {
                                     const amount = prompt('Give how many cookies?');
                                     if (amount && !isNaN(amount)) {
-                                      const result = await api.updatePlayer(player.playerId, {
+                                      await api.updatePlayer(player.playerId, {
                                         cookies: (player.cookies || 0) + parseInt(amount)
                                       });
-                                      if (result.success) {
-                                        createNotification(`✓ Gave ${formatNumber(parseInt(amount))} cookies`);
-                                        loadAllPlayers();
-                                      }
+                                      createNotification(`✓ Gave ${formatNumber(parseInt(amount))} cookies`);
+                                      addModLog('GIVE_COOKIES', `Gave ${amount} cookies to ${player.playerId}`);
+                                      loadAllPlayers();
                                     }
-                                  }}
-                                  className="bg-green-600 hover:bg-green-500 px-3 py-2 rounded-lg font-medium text-xs"
-                                  style={{ fontFamily: 'system-ui' }}
-                                >
-                                  💰 Give Cookies
-                                </button>
-                                <button
-                                  onClick={async () => {
+                                  }},
+                                  { label: '⚡ Set CPC', action: async () => {
                                     const amount = prompt('Set CPC to?');
                                     if (amount && !isNaN(amount)) {
-                                      const result = await api.updatePlayer(player.playerId, {
+                                      await api.updatePlayer(player.playerId, {
                                         cookiesPerClick: parseInt(amount)
                                       });
-                                      if (result.success) {
-                                        createNotification(`✓ Set CPC to ${formatNumber(parseInt(amount))}`);
-                                        loadAllPlayers();
-                                      }
+                                      createNotification(`✓ Set CPC`);
+                                      addModLog('SET_CPC', `Set CPC to ${amount} for ${player.playerId}`);
+                                      loadAllPlayers();
                                     }
-                                  }}
-                                  className="bg-blue-600 hover:bg-blue-500 px-3 py-2 rounded-lg font-medium text-xs"
-                                  style={{ fontFamily: 'system-ui' }}
-                                >
-                                  ⚡ Set CPC
-                                </button>
-                                <button
-                                  onClick={async () => {
+                                  }},
+                                  { label: '🔥 Set CPS', action: async () => {
                                     const amount = prompt('Set CPS to?');
                                     if (amount && !isNaN(amount)) {
-                                      const result = await api.updatePlayer(player.playerId, {
+                                      await api.updatePlayer(player.playerId, {
                                         cookiesPerSecond: parseInt(amount)
                                       });
-                                      if (result.success) {
-                                        createNotification(`✓ Set CPS to ${formatNumber(parseInt(amount))}`);
-                                        loadAllPlayers();
-                                      }
+                                      createNotification(`✓ Set CPS`);
+                                      addModLog('SET_CPS', `Set CPS to ${amount} for ${player.playerId}`);
+                                      loadAllPlayers();
                                     }
-                                  }}
-                                  className="bg-blue-600 hover:bg-blue-500 px-3 py-2 rounded-lg font-medium text-xs"
-                                  style={{ fontFamily: 'system-ui' }}
-                                >
-                                  🔥 Set CPS
-                                </button>
-                                <button
-                                  onClick={async () => {
+                                  }},
+                                  { label: '⭐ Set Level', action: async () => {
                                     const level = prompt('Set level to?');
                                     if (level && !isNaN(level)) {
-                                      const result = await api.updatePlayer(player.playerId, {
+                                      await api.updatePlayer(player.playerId, {
                                         level: parseInt(level)
                                       });
-                                      if (result.success) {
-                                        createNotification(`✓ Set level to ${level}`);
-                                        loadAllPlayers();
-                                      }
+                                      createNotification(`✓ Set level`);
+                                      addModLog('SET_LEVEL', `Set level to ${level} for ${player.playerId}`);
+                                      loadAllPlayers();
                                     }
-                                  }}
-                                  className="bg-purple-600 hover:bg-purple-500 px-3 py-2 rounded-lg font-medium text-xs"
-                                  style={{ fontFamily: 'system-ui' }}
-                                >
-                                  ⭐ Set Level
-                                </button>
-                                <button
-                                  onClick={async () => {
-                                    const tokens = prompt('Give how many prestige tokens?');
+                                  }},
+                                  { label: '🌟 Give Tokens', action: async () => {
+                                    const tokens = prompt('Give how many tokens?');
                                     if (tokens && !isNaN(tokens)) {
-                                      const result = await api.updatePlayer(player.playerId, {
+                                      await api.updatePlayer(player.playerId, {
                                         prestigeTokens: (player.prestigeTokens || 0) + parseInt(tokens)
                                       });
-                                      if (result.success) {
-                                        createNotification(`✓ Gave ${tokens} tokens`);
-                                        loadAllPlayers();
-                                      }
+                                      createNotification(`✓ Gave tokens`);
+                                      addModLog('GIVE_TOKENS', `Gave ${tokens} tokens to ${player.playerId}`);
+                                      loadAllPlayers();
                                     }
-                                  }}
-                                  className="bg-yellow-600 hover:bg-yellow-500 px-3 py-2 rounded-lg font-medium text-xs"
-                                  style={{ fontFamily: 'system-ui' }}
-                                >
-                                  🌟 Give Tokens
-                                </button>
+                                  }},
+                                  { label: '👑 Max Everything', action: async () => {
+                                    if (confirm(`Max out ${player.playerName}'s stats?`)) {
+                                      await api.updatePlayer(player.playerId, {
+                                        cookies: Number.MAX_SAFE_INTEGER,
+                                        cookiesPerClick: 999999999,
+                                        cookiesPerSecond: 999999999,
+                                        level: 999,
+                                        prestige: 999,
+                                        prestigeTokens: 99999
+                                      });
+                                      createNotification(`✓ Maxed player`);
+                                      addModLog('MAX_PLAYER', `Maxed all stats for ${player.playerId}`);
+                                      loadAllPlayers();
+                                    }
+                                  }},
+                                ].map(action => (
+                                  <button
+                                    key={action.label}
+                                    onClick={action.action}
+                                    className="bg-green-600 hover:bg-green-500 px-3 py-2 rounded-lg font-medium text-xs transition-all"
+                                    style={{ fontFamily: 'system-ui' }}
+                                  >
+                                    {action.label}
+                                  </button>
+                                ))}
                               </div>
                             </div>
                             
                             {/* Give cosmetics */}
-                            <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-600">
-                              <h4 className="text-sm font-bold text-orange-400 mb-2" style={{ fontFamily: 'system-ui' }}>
-                                Give Cosmetics
+                            <div className="bg-pink-900/20 rounded-lg p-3 border border-pink-500/30">
+                              <h4 className="text-sm font-bold text-pink-400 mb-3" style={{ fontFamily: 'system-ui' }}>
+                                🎨 Give Cosmetics
                               </h4>
                               <div className="grid grid-cols-2 gap-2">
+                                {[
+                                  { label: '🍪 Cookie Skin', type: 'cookie', items: COSMETICS.cookies },
+                                  { label: '🎨 Theme', type: 'theme', items: COSMETICS.themes },
+                                  { label: '✨ Effect', type: 'effect', items: COSMETICS.effects },
+                                  { label: '👑 Title', type: 'title', items: COSMETICS.titles },
+                                ].map(cosmType => (
+                                  <button
+                                    key={cosmType.label}
+                                    onClick={async () => {
+                                      const items = cosmType.items.map(i => i.id).join(', ');
+                                      const id = prompt(`Available ${cosmType.type}s:\n${items}\n\nEnter ID:`);
+                                      const item = cosmType.items.find(i => i.id === id);
+                                      if (item) {
+                                        await ownerGiveCosmetic(player.playerId, cosmType.type, id, item.name);
+                                      }
+                                    }}
+                                    className="bg-pink-600 hover:bg-pink-500 px-3 py-2 rounded-lg font-medium text-xs transition-all"
+                                    style={{ fontFamily: 'system-ui' }}
+                                  >
+                                    {cosmType.label}
+                                  </button>
+                                ))}
                                 <button
                                   onClick={async () => {
-                                    const cookieId = prompt(`Available cookies:\n${COSMETICS.cookies.map(c => c.id).join(', ')}\n\nEnter cookie ID:`);
-                                    if (cookieId && COSMETICS.cookies.find(c => c.id === cookieId)) {
-                                      const currentOwned = player.ownedCosmetics?.cookies || ['default'];
-                                      if (!currentOwned.includes(cookieId)) {
-                                        const result = await api.updatePlayer(player.playerId, {
-                                          'ownedCosmetics.cookies': [...currentOwned, cookieId]
-                                        });
-                                        if (result.success) {
-                                          createNotification(`✓ Gave cookie: ${cookieId}`);
-                                          loadAllPlayers();
+                                    if (confirm(`Give ALL cosmetics to ${player.playerName}?`)) {
+                                      await api.updatePlayer(player.playerId, {
+                                        ownedCosmetics: {
+                                          cookies: COSMETICS.cookies.map(c => c.id),
+                                          themes: COSMETICS.themes.map(t => t.id),
+                                          effects: COSMETICS.effects.map(e => e.id),
+                                          titles: COSMETICS.titles.map(t => t.id),
+                                          badges: COSMETICS.badges.map(b => b.id)
                                         }
-                                      } else {
-                                        createNotification('Already owns this');
-                                      }
-                                    }
-                                  }}
-                                  className="bg-pink-600 hover:bg-pink-500 px-3 py-2 rounded-lg font-medium text-xs"
-                                  style={{ fontFamily: 'system-ui' }}
-                                >
-                                  🍪 Cookie Skin
-                                </button>
-                                <button
-                                  onClick={async () => {
-                                    const themeId = prompt(`Available themes:\n${COSMETICS.themes.map(t => t.id).join(', ')}\n\nEnter theme ID:`);
-                                    if (themeId && COSMETICS.themes.find(t => t.id === themeId)) {
-                                      const currentOwned = player.ownedCosmetics?.themes || ['default'];
-                                      if (!currentOwned.includes(themeId)) {
-                                        const result = await api.updatePlayer(player.playerId, {
-                                          'ownedCosmetics.themes': [...currentOwned, themeId]
-                                        });
-                                        if (result.success) {
-                                          createNotification(`✓ Gave theme: ${themeId}`);
-                                          loadAllPlayers();
-                                        }
-                                      } else {
-                                        createNotification('Already owns this');
-                                      }
-                                    }
-                                  }}
-                                  className="bg-pink-600 hover:bg-pink-500 px-3 py-2 rounded-lg font-medium text-xs"
-                                  style={{ fontFamily: 'system-ui' }}
-                                >
-                                  🎨 Theme
-                                </button>
-                                <button
-                                  onClick={async () => {
-                                    const effectId = prompt(`Available effects:\n${COSMETICS.effects.map(e => e.id).join(', ')}\n\nEnter effect ID:`);
-                                    if (effectId && COSMETICS.effects.find(e => e.id === effectId)) {
-                                      const currentOwned = player.ownedCosmetics?.effects || ['none'];
-                                      if (!currentOwned.includes(effectId)) {
-                                        const result = await api.updatePlayer(player.playerId, {
-                                          'ownedCosmetics.effects': [...currentOwned, effectId]
-                                        });
-                                        if (result.success) {
-                                          createNotification(`✓ Gave effect: ${effectId}`);
-                                          loadAllPlayers();
-                                        }
-                                      } else {
-                                        createNotification('Already owns this');
-                                      }
-                                    }
-                                  }}
-                                  className="bg-pink-600 hover:bg-pink-500 px-3 py-2 rounded-lg font-medium text-xs"
-                                  style={{ fontFamily: 'system-ui' }}
-                                >
-                                  ✨ Effect
-                                </button>
-                                <button
-                                  onClick={async () => {
-                                    const titleId = prompt(`Available titles:\n${COSMETICS.titles.map(t => t.id).join(', ')}\n\nEnter title ID:`);
-                                    if (titleId && COSMETICS.titles.find(t => t.id === titleId)) {
-                                      const currentOwned = player.ownedCosmetics?.titles || ['none'];
-                                      if (!currentOwned.includes(titleId)) {
-                                        const result = await api.updatePlayer(player.playerId, {
-                                          'ownedCosmetics.titles': [...currentOwned, titleId]
-                                        });
-                                        if (result.success) {
-                                          createNotification(`✓ Gave title: ${titleId}`);
-                                          loadAllPlayers();
-                                        }
-                                      } else {
-                                        createNotification('Already owns this');
-                                      }
-                                    }
-                                  }}
-                                  className="bg-pink-600 hover:bg-pink-500 px-3 py-2 rounded-lg font-medium text-xs"
-                                  style={{ fontFamily: 'system-ui' }}
-                                >
-                                  👑 Title
-                                </button>
-                                <button
-                                  onClick={async () => {
-                                    const result = await api.updatePlayer(player.playerId, {
-                                      ownedCosmetics: {
-                                        cookies: COSMETICS.cookies.map(c => c.id),
-                                        themes: COSMETICS.themes.map(t => t.id),
-                                        effects: COSMETICS.effects.map(e => e.id),
-                                        titles: COSMETICS.titles.map(t => t.id)
-                                      }
-                                    });
-                                    if (result.success) {
-                                      createNotification(`✓ Gave ALL cosmetics`);
+                                      });
+                                      createNotification(`✓ Gave all cosmetics`);
+                                      addModLog('GIVE_ALL_COSMETICS', `Gave all cosmetics to ${player.playerId}`);
                                       loadAllPlayers();
                                     }
                                   }}
-                                  className="bg-purple-600 hover:bg-purple-500 px-3 py-2 rounded-lg font-medium text-xs col-span-2"
+                                  className="bg-purple-600 hover:bg-purple-500 px-3 py-2 rounded-lg font-medium text-xs col-span-2 transition-all"
                                   style={{ fontFamily: 'system-ui' }}
                                 >
                                   🎁 Give ALL Cosmetics
@@ -2174,21 +2700,62 @@ function UltimateCookieEmpire() {
                             </div>
                             
                             {/* Danger zone */}
-                            <div className="grid grid-cols-2 gap-2">
-                              <button
-                                onClick={() => ownerResetPlayerEconomy(player.playerId)}
-                                className="bg-red-600 hover:bg-red-500 px-3 py-2 rounded-lg font-medium text-xs"
-                                style={{ fontFamily: 'system-ui' }}
-                              >
-                                ⚠️ Reset Economy
-                              </button>
-                              <button
-                                onClick={() => ownerDeletePlayer(player.playerId)}
-                                className="bg-red-800 hover:bg-red-700 px-3 py-2 rounded-lg font-medium text-xs"
-                                style={{ fontFamily: 'system-ui' }}
-                              >
-                                🗑️ Delete Player
-                              </button>
+                            <div className="bg-red-900/20 rounded-lg p-3 border border-red-500/30">
+                              <h4 className="text-sm font-bold text-red-400 mb-3" style={{ fontFamily: 'system-ui' }}>
+                                ⚠️ Danger Zone
+                              </h4>
+                              <div className="grid grid-cols-2 gap-2">
+                                <button
+                                  onClick={async () => {
+                                    if (confirm(`Reset economy for ${player.playerName}?`)) {
+                                      await api.updatePlayer(player.playerId, {
+                                        cookies: 0,
+                                        totalCookiesEarned: 0,
+                                        cookiesPerClick: 1,
+                                        cookiesPerSecond: 0
+                                      });
+                                      createNotification(`✓ Economy reset`);
+                                      addModLog('RESET_ECONOMY', `Reset economy for ${player.playerId}`);
+                                      loadAllPlayers();
+                                    }
+                                  }}
+                                  className="bg-red-600 hover:bg-red-500 px-3 py-2 rounded-lg font-medium text-xs transition-all"
+                                  style={{ fontFamily: 'system-ui' }}
+                                >
+                                  ⚠️ Reset Economy
+                                </button>
+                                <button
+                                  onClick={async () => {
+                                    if (confirm(`COMPLETELY RESET ${player.playerName}? This resets EVERYTHING!`)) {
+                                      await api.updatePlayer(player.playerId, {
+                                        cookies: 0,
+                                        totalCookiesEarned: 0,
+                                        cookiesPerClick: 1,
+                                        cookiesPerSecond: 0,
+                                        level: 1,
+                                        prestige: 0,
+                                        prestigeTokens: 0,
+                                        totalClicks: 0,
+                                        criticalFails: 0
+                                      });
+                                      createNotification(`✓ Player reset`);
+                                      addModLog('FULL_RESET', `Full reset for ${player.playerId}`);
+                                      loadAllPlayers();
+                                    }
+                                  }}
+                                  className="bg-red-700 hover:bg-red-600 px-3 py-2 rounded-lg font-medium text-xs transition-all"
+                                  style={{ fontFamily: 'system-ui' }}
+                                >
+                                  🔄 Full Reset
+                                </button>
+                                <button
+                                  onClick={() => ownerDeletePlayer(player.playerId)}
+                                  className="bg-red-900 hover:bg-red-800 px-3 py-2 rounded-lg font-bold text-xs col-span-2 transition-all"
+                                  style={{ fontFamily: 'system-ui' }}
+                                >
+                                  🗑️ DELETE PLAYER
+                                </button>
+                              </div>
                             </div>
                           </div>
                         )}
@@ -2198,47 +2765,186 @@ function UltimateCookieEmpire() {
                 </div>
               )}
               
-              {/* Stats */}
-              {ownerTab === 'stats' && (
-                <div className="space-y-4">
-                  <div className="bg-black/30 rounded-lg p-4 border border-gray-700">
-                    <h3 className="text-lg font-bold text-white mb-3" style={{ fontFamily: 'system-ui' }}>
-                      Global Statistics
-                    </h3>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm" style={{ fontFamily: 'monospace' }}>
-                      <div>
-                        <div className="text-gray-400">Total Players</div>
-                        <div className="text-2xl font-bold text-white">{allPlayers.length}</div>
+              {/* Cosmetics Tab */}
+              {ownerTab === 'cosmetics' && (
+                <div>
+                  <h3 className="text-xl font-bold text-orange-400 mb-4" style={{ fontFamily: 'system-ui' }}>
+                    🎨 Owner Exclusive Cosmetics
+                  </h3>
+                  
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-lg font-bold text-white mb-3" style={{ fontFamily: 'system-ui' }}>
+                        Owner Cookies
+                      </h4>
+                      <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
+                        {OWNER_COSMETICS.cookies.map(cookie => (
+                          <div key={cookie.id} className="bg-orange-900/20 rounded-lg p-4 border border-orange-500/30 text-center">
+                            <div className="text-5xl mb-2">{cookie.emoji}</div>
+                            <div className="text-xs font-bold text-orange-400" style={{ fontFamily: 'system-ui' }}>
+                              {cookie.name}
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                      <div>
-                        <div className="text-gray-400">Active Players</div>
-                        <div className="text-2xl font-bold text-white">
-                          {allPlayers.filter(p => (p.totalClicks || 0) > 0).length}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-gray-400">Total Cookies</div>
-                        <div className="text-2xl font-bold text-white">
-                          {formatNumber(allPlayers.reduce((sum, p) => sum + (p.totalCookiesEarned || 0), 0))}
-                        </div>
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-lg font-bold text-white mb-3" style={{ fontFamily: 'system-ui' }}>
+                        Owner Themes
+                      </h4>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {OWNER_COSMETICS.themes.map(theme => (
+                          <div key={theme.id} className="bg-orange-900/20 rounded-lg p-4 border border-orange-500/30">
+                            <div className="h-16 rounded mb-2" style={{ 
+                              background: `linear-gradient(135deg, ${theme.accent} 0%, ${theme.secondary} 100%)`
+                            }} />
+                            <div className="text-sm font-bold text-orange-400" style={{ fontFamily: 'system-ui' }}>
+                              {theme.name}
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
+                </div>
+              )}
+              
+              {/* Economy Tab */}
+              {ownerTab === 'economy' && (
+                <div>
+                  <h3 className="text-xl font-bold text-orange-400 mb-4" style={{ fontFamily: 'system-ui' }}>
+                    💰 Global Economy Controls
+                  </h3>
                   
-                  <div className="bg-black/30 rounded-lg p-4 border border-gray-700">
-                    <h3 className="text-lg font-bold text-white mb-3" style={{ fontFamily: 'system-ui' }}>
-                      Top Players
-                    </h3>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="bg-black/30 rounded-lg p-5 border border-orange-500/30">
+                      <h4 className="text-lg font-bold text-white mb-4" style={{ fontFamily: 'system-ui' }}>
+                        Total Economy Stats
+                      </h4>
+                      <div className="space-y-3 text-sm" style={{ fontFamily: 'monospace' }}>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Total Cookies in Circulation:</span>
+                          <span className="text-orange-400 font-bold">
+                            {formatNumber(allPlayers.reduce((sum, p) => sum + (p.cookies || 0), 0))}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Total Cookies Ever Earned:</span>
+                          <span className="text-orange-400 font-bold">
+                            {formatNumber(allPlayers.reduce((sum, p) => sum + (p.totalCookiesEarned || 0), 0))}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Total CPS:</span>
+                          <span className="text-orange-400 font-bold">
+                            {formatNumber(allPlayers.reduce((sum, p) => sum + (p.cookiesPerSecond || 0), 0))}/s
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Average Player Level:</span>
+                          <span className="text-orange-400 font-bold">
+                            {allPlayers.length > 0 ? Math.floor(allPlayers.reduce((sum, p) => sum + (p.level || 0), 0) / allPlayers.length) : 0}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-black/30 rounded-lg p-5 border border-orange-500/30">
+                      <h4 className="text-lg font-bold text-white mb-4" style={{ fontFamily: 'system-ui' }}>
+                        Mass Actions
+                      </h4>
+                      <div className="space-y-2">
+                        <button
+                          onClick={async () => {
+                            if (confirm('Give ALL players 1,000,000 cookies?')) {
+                              for (const player of allPlayers) {
+                                await api.updatePlayer(player.playerId, {
+                                  cookies: (player.cookies || 0) + 1000000
+                                });
+                              }
+                              createNotification('✓ Gave all players cookies');
+                              addModLog('MASS_GIVE', 'Gave 1M cookies to all players');
+                              loadAllPlayers();
+                            }
+                          }}
+                          className="w-full bg-green-600 hover:bg-green-500 px-4 py-3 rounded-lg font-bold text-sm transition-all"
+                          style={{ fontFamily: 'system-ui' }}
+                        >
+                          🎁 Give All Players 1M Cookies
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (confirm('⚠️ RESET ALL PLAYER ECONOMIES? This cannot be undone!')) {
+                              for (const player of allPlayers) {
+                                await api.updatePlayer(player.playerId, {
+                                  cookies: 0,
+                                  totalCookiesEarned: 0,
+                                  cookiesPerClick: 1,
+                                  cookiesPerSecond: 0
+                                });
+                              }
+                              createNotification('✓ Global economy reset');
+                              addModLog('GLOBAL_RESET', 'Reset all player economies');
+                              loadAllPlayers();
+                            }
+                          }}
+                          className="w-full bg-red-600 hover:bg-red-500 px-4 py-3 rounded-lg font-bold text-sm transition-all"
+                          style={{ fontFamily: 'system-ui' }}
+                        >
+                          ⚠️ Global Economy Reset
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Stats Tab */}
+              {ownerTab === 'stats' && (
+                <div>
+                  <h3 className="text-xl font-bold text-orange-400 mb-4" style={{ fontFamily: 'system-ui' }}>
+                    📊 Analytics & Insights
+                  </h3>
+                  
+                  <div className="grid md:grid-cols-3 gap-4 mb-6">
+                    <div className="bg-black/30 rounded-lg p-5 border border-orange-500/30">
+                      <div className="text-4xl mb-2">👥</div>
+                      <div className="text-3xl font-black text-white mb-1" style={{ fontFamily: 'system-ui' }}>
+                        {allPlayers.length}
+                      </div>
+                      <div className="text-sm text-gray-400">Total Players</div>
+                    </div>
+                    <div className="bg-black/30 rounded-lg p-5 border border-orange-500/30">
+                      <div className="text-4xl mb-2">✅</div>
+                      <div className="text-3xl font-black text-white mb-1" style={{ fontFamily: 'system-ui' }}>
+                        {allPlayers.filter(p => (p.totalClicks || 0) > 0).length}
+                      </div>
+                      <div className="text-sm text-gray-400">Active Players</div>
+                    </div>
+                    <div className="bg-black/30 rounded-lg p-5 border border-orange-500/30">
+                      <div className="text-4xl mb-2">🌟</div>
+                      <div className="text-3xl font-black text-white mb-1" style={{ fontFamily: 'system-ui' }}>
+                        {allPlayers.filter(p => (p.prestige || 0) > 0).length}
+                      </div>
+                      <div className="text-sm text-gray-400">Prestiged Players</div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-black/30 rounded-lg p-5 border border-orange-500/30">
+                    <h4 className="text-lg font-bold text-white mb-4" style={{ fontFamily: 'system-ui' }}>
+                      Top 10 Players by Total Cookies
+                    </h4>
                     <div className="space-y-2">
                       {allPlayers
                         .sort((a, b) => (b.totalCookiesEarned || 0) - (a.totalCookiesEarned || 0))
-                        .slice(0, 5)
+                        .slice(0, 10)
                         .map((player, idx) => (
-                          <div key={player.playerId} className="flex justify-between items-center text-sm">
+                          <div key={player.playerId} className="flex justify-between items-center text-sm bg-black/30 rounded p-2">
                             <span className="text-gray-400" style={{ fontFamily: 'system-ui' }}>
                               #{idx + 1} {player.playerName || 'Unknown'}
                             </span>
-                            <span className="text-white font-bold" style={{ fontFamily: 'monospace' }}>
+                            <span className="text-orange-400 font-bold" style={{ fontFamily: 'monospace' }}>
                               {formatNumber(player.totalCookiesEarned || 0)}
                             </span>
                           </div>
@@ -2252,9 +2958,355 @@ function UltimateCookieEmpire() {
         </div>
       )}
       
-      {/* Made by Z3N0 */}
-      <div className="fixed bottom-4 right-4 text-xs text-gray-600" style={{ fontFamily: 'monospace' }}>
-        Made by Z3N0
+      {/* MODERATOR PANEL */}
+      {isModerator && modPanelOpen && (
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 overflow-y-auto p-4" onClick={() => setModPanelOpen(false)}>
+          <div className="max-w-6xl mx-auto my-8" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-gradient-to-br from-blue-900/20 to-cyan-900/20 rounded-xl border-2 border-blue-500 p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-4xl font-black text-blue-400" style={{ fontFamily: 'system-ui' }}>
+                  🛡️ MODERATOR PANEL
+                </h2>
+                <button onClick={() => setModPanelOpen(false)} className="text-gray-400 hover:text-white text-3xl">
+                  ✕
+                </button>
+              </div>
+              
+              {/* Mod tabs */}
+              <div className="flex gap-2 mb-6">
+                {['players', 'actions', 'logs'].map(tab => (
+                  <button
+                    key={tab}
+                    onClick={() => setModTab(tab)}
+                    className={`px-4 py-2 rounded-lg font-bold text-sm transition-all capitalize ${
+                      modTab === tab ? 'bg-blue-600 text-white scale-105' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                    }`}
+                    style={{ fontFamily: 'system-ui' }}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+              
+              {/* Players Tab */}
+              {modTab === 'players' && (
+                <div>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search players..."
+                    className="w-full mb-4 bg-black/50 border border-blue-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+                    style={{ fontFamily: 'system-ui' }}
+                  />
+                  
+                  <div className="space-y-3 max-h-[500px] overflow-y-auto">
+                    {filteredPlayers.map(player => (
+                      <div key={player.playerId} className="bg-black/40 rounded-lg p-4 border border-blue-500/20">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <div className="font-bold text-white" style={{ fontFamily: 'system-ui' }}>
+                              {player.playerName || 'Unknown'}
+                            </div>
+                            <div className="text-xs text-gray-400" style={{ fontFamily: 'monospace' }}>
+                              {player.playerId} • Level {player.level || 0}
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => setSelectedPlayer(player.playerId === selectedPlayer ? null : player.playerId)}
+                            className="text-blue-400 hover:text-blue-300 text-sm font-bold"
+                          >
+                            {selectedPlayer === player.playerId ? '▼' : '▶'} Moderate
+                          </button>
+                        </div>
+                        
+                        {selectedPlayer === player.playerId && (
+                          <div className="mt-4 space-y-2">
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                onClick={() => {
+                                  const reason = prompt('Warning reason:');
+                                  if (reason) modWarnPlayer(player.playerId, reason);
+                                }}
+                                className="bg-yellow-600 hover:bg-yellow-500 px-3 py-2 rounded-lg font-medium text-xs"
+                                style={{ fontFamily: 'system-ui' }}
+                              >
+                                ⚠️ Warn Player
+                              </button>
+                              <button
+                                onClick={() => {
+                                  const duration = prompt('Mute duration (minutes):');
+                                  if (duration && !isNaN(duration)) modMutePlayer(player.playerId, parseInt(duration));
+                                }}
+                                className="bg-orange-600 hover:bg-orange-500 px-3 py-2 rounded-lg font-medium text-xs"
+                                style={{ fontFamily: 'system-ui' }}
+                              >
+                                🔇 Mute Player
+                              </button>
+                              <button
+                                onClick={() => modResetPlayerProgress(player.playerId)}
+                                className="bg-red-600 hover:bg-red-500 px-3 py-2 rounded-lg font-medium text-xs col-span-2"
+                                style={{ fontFamily: 'system-ui' }}
+                              >
+                                🔄 Reset Progress
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Actions Tab */}
+              {modTab === 'actions' && (
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="bg-black/30 rounded-lg p-5 border border-blue-500/30">
+                    <h4 className="text-lg font-bold text-white mb-4" style={{ fontFamily: 'system-ui' }}>
+                      Quick Actions
+                    </h4>
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => {
+                          loadAllPlayers();
+                          createNotification('✓ Refreshed player list');
+                        }}
+                        className="w-full bg-blue-600 hover:bg-blue-500 px-4 py-3 rounded-lg font-bold text-sm"
+                        style={{ fontFamily: 'system-ui' }}
+                      >
+                        🔄 Refresh Player List
+                      </button>
+                      <button
+                        onClick={() => {
+                          updateLeaderboard();
+                          createNotification('✓ Refreshed leaderboard');
+                        }}
+                        className="w-full bg-blue-600 hover:bg-blue-500 px-4 py-3 rounded-lg font-bold text-sm"
+                        style={{ fontFamily: 'system-ui' }}
+                      >
+                        🏆 Refresh Leaderboard
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-black/30 rounded-lg p-5 border border-blue-500/30">
+                    <h4 className="text-lg font-bold text-white mb-4" style={{ fontFamily: 'system-ui' }}>
+                      Statistics
+                    </h4>
+                    <div className="space-y-2 text-sm" style={{ fontFamily: 'monospace' }}>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Total Players:</span>
+                        <span className="text-blue-400 font-bold">{allPlayers.length}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Actions Taken:</span>
+                        <span className="text-blue-400 font-bold">{modLogs.length}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Logs Tab */}
+              {modTab === 'logs' && (
+                <div className="bg-black/30 rounded-lg p-5 border border-blue-500/30 max-h-[500px] overflow-y-auto">
+                  <h4 className="text-lg font-bold text-white mb-4" style={{ fontFamily: 'system-ui' }}>
+                    Moderation Logs
+                  </h4>
+                  {modLogs.length === 0 ? (
+                    <div className="text-center py-8 text-gray-400">No logs yet</div>
+                  ) : (
+                    <div className="space-y-2">
+                      {modLogs.map(log => (
+                        <div key={log.id} className="bg-black/30 rounded p-3 text-xs" style={{ fontFamily: 'monospace' }}>
+                          <div className="flex justify-between mb-1">
+                            <span className="text-blue-400 font-bold">{log.action}</span>
+                            <span className="text-gray-500">{new Date(log.timestamp).toLocaleString()}</span>
+                          </div>
+                          <div className="text-gray-300">{log.details}</div>
+                          <div className="text-gray-500">by {log.moderator}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* STAFF DASHBOARD - Ultimate Analytics */}
+      {isOwner && staffDashboardOpen && (
+        <div className="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 overflow-y-auto p-4" onClick={() => setStaffDashboardOpen(false)}>
+          <div className="max-w-7xl mx-auto my-8" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-gradient-to-br from-purple-900/20 to-pink-900/20 rounded-xl border-2 border-purple-500 p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-4xl font-black text-purple-400" style={{ fontFamily: 'system-ui' }}>
+                  📊 STAFF DASHBOARD
+                </h2>
+                <button onClick={() => setStaffDashboardOpen(false)} className="text-gray-400 hover:text-white text-3xl">
+                  ✕
+                </button>
+              </div>
+              
+              {/* Dashboard tabs */}
+              <div className="flex gap-2 mb-6 flex-wrap">
+                {['overview', 'analytics', 'insights', 'reports'].map(tab => (
+                  <button
+                    key={tab}
+                    onClick={() => setStaffTab(tab)}
+                    className={`px-4 py-2 rounded-lg font-bold text-sm transition-all capitalize ${
+                      staffTab === tab ? 'bg-purple-600 text-white scale-105' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                    }`}
+                    style={{ fontFamily: 'system-ui' }}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+              
+              {/* Overview */}
+              {staffTab === 'overview' && (
+                <div className="space-y-6">
+                  <div className="grid md:grid-cols-4 gap-4">
+                    {[
+                      { label: 'Total Players', value: allPlayers.length, icon: '👥', color: '#8b5cf6' },
+                      { label: 'Active Players', value: allPlayers.filter(p => (p.totalClicks || 0) > 0).length, icon: '✅', color: '#10b981' },
+                      { label: 'Total Cookies', value: formatNumber(allPlayers.reduce((sum, p) => sum + (p.totalCookiesEarned || 0), 0)), icon: '🍪', color: '#f59e0b' },
+                      { label: 'Avg Level', value: allPlayers.length > 0 ? Math.floor(allPlayers.reduce((sum, p) => sum + (p.level || 0), 0) / allPlayers.length) : 0, icon: '⭐', color: '#3b82f6' },
+                    ].map(stat => (
+                      <div key={stat.label} className="bg-black/40 rounded-xl p-6 border border-gray-700">
+                        <div className="text-5xl mb-3">{stat.icon}</div>
+                        <div className="text-3xl font-black mb-1" style={{ color: stat.color, fontFamily: 'system-ui' }}>
+                          {stat.value}
+                        </div>
+                        <div className="text-sm text-gray-400">{stat.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="bg-black/30 rounded-lg p-5 border border-purple-500/30">
+                      <h3 className="text-xl font-bold text-white mb-4" style={{ fontFamily: 'system-ui' }}>
+                        Top 5 by Level
+                      </h3>
+                      <div className="space-y-2">
+                        {allPlayers
+                          .sort((a, b) => (b.level || 0) - (a.level || 0))
+                          .slice(0, 5)
+                          .map((p, i) => (
+                            <div key={p.playerId} className="flex justify-between items-center bg-black/30 rounded p-2">
+                              <span className="text-gray-300 text-sm">{i + 1}. {p.playerName}</span>
+                              <span className="text-purple-400 font-bold">Lvl {p.level || 0}</span>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                    
+                    <div className="bg-black/30 rounded-lg p-5 border border-purple-500/30">
+                      <h3 className="text-xl font-bold text-white mb-4" style={{ fontFamily: 'system-ui' }}>
+                        Top 5 by Prestige
+                      </h3>
+                      <div className="space-y-2">
+                        {allPlayers
+                          .sort((a, b) => (b.prestige || 0) - (a.prestige || 0))
+                          .slice(0, 5)
+                          .map((p, i) => (
+                            <div key={p.playerId} className="flex justify-between items-center bg-black/30 rounded p-2">
+                              <span className="text-gray-300 text-sm">{i + 1}. {p.playerName}</span>
+                              <span className="text-purple-400 font-bold">P{p.prestige || 0}</span>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Analytics */}
+              {staffTab === 'analytics' && (
+                <div className="space-y-6">
+                  <div className="bg-black/30 rounded-lg p-5 border border-purple-500/30">
+                    <h3 className="text-xl font-bold text-white mb-4" style={{ fontFamily: 'system-ui' }}>
+                      Economy Metrics
+                    </h3>
+                    <div className="grid md:grid-cols-3 gap-4 text-sm" style={{ fontFamily: 'monospace' }}>
+                      {[
+                        { label: 'Total Cookies in Circulation', value: formatNumber(allPlayers.reduce((s, p) => s + (p.cookies || 0), 0)) },
+                        { label: 'Total Cookies Ever Earned', value: formatNumber(allPlayers.reduce((s, p) => s + (p.totalCookiesEarned || 0), 0)) },
+                        { label: 'Global CPS', value: formatNumber(allPlayers.reduce((s, p) => s + (p.cookiesPerSecond || 0), 0)) + '/s' },
+                        { label: 'Total Clicks', value: formatNumber(allPlayers.reduce((s, p) => s + (p.totalClicks || 0), 0)) },
+                        { label: 'Total Prestiges', value: allPlayers.reduce((s, p) => s + (p.prestige || 0), 0) },
+                        { label: 'Total Critical Fails', value: allPlayers.reduce((s, p) => s + (p.criticalFails || 0), 0) },
+                      ].map(metric => (
+                        <div key={metric.label} className="bg-black/30 rounded p-3">
+                          <div className="text-gray-400 mb-1">{metric.label}</div>
+                          <div className="text-xl font-bold text-purple-400">{metric.value}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-black/30 rounded-lg p-5 border border-purple-500/30">
+                    <h3 className="text-xl font-bold text-white mb-4" style={{ fontFamily: 'system-ui' }}>
+                      Player Distribution
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="text-sm font-bold text-gray-400 mb-2">By Level</h4>
+                        <div className="space-y-1 text-xs" style={{ fontFamily: 'monospace' }}>
+                          <div className="flex justify-between">
+                            <span>1-10:</span>
+                            <span className="text-purple-400 font-bold">{allPlayers.filter(p => (p.level || 0) >= 1 && (p.level || 0) <= 10).length}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>11-50:</span>
+                            <span className="text-purple-400 font-bold">{allPlayers.filter(p => (p.level || 0) >= 11 && (p.level || 0) <= 50).length}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>51-100:</span>
+                            <span className="text-purple-400 font-bold">{allPlayers.filter(p => (p.level || 0) >= 51 && (p.level || 0) <= 100).length}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>100+:</span>
+                            <span className="text-purple-400 font-bold">{allPlayers.filter(p => (p.level || 0) > 100).length}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-gray-400 mb-2">By Prestige</h4>
+                        <div className="space-y-1 text-xs" style={{ fontFamily: 'monospace' }}>
+                          <div className="flex justify-between">
+                            <span>No Prestige:</span>
+                            <span className="text-purple-400 font-bold">{allPlayers.filter(p => (p.prestige || 0) === 0).length}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>1-5:</span>
+                            <span className="text-purple-400 font-bold">{allPlayers.filter(p => (p.prestige || 0) >= 1 && (p.prestige || 0) <= 5).length}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>6-20:</span>
+                            <span className="text-purple-400 font-bold">{allPlayers.filter(p => (p.prestige || 0) >= 6 && (p.prestige || 0) <= 20).length}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>20+:</span>
+                            <span className="text-purple-400 font-bold">{allPlayers.filter(p => (p.prestige || 0) > 20).length}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <div className="fixed bottom-4 right-4 text-xs text-gray-600 font-mono">
+        Created by Z3N0 • Ultimate Edition V2.0
       </div>
       
       <style jsx>{`
@@ -2273,6 +3325,15 @@ function UltimateCookieEmpire() {
           to {
             transform: translateX(0);
             opacity: 1;
+          }
+        }
+        
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 0.3;
+          }
+          50% {
+            opacity: 0.5;
           }
         }
       `}</style>
