@@ -433,7 +433,7 @@ function UltimateCookieEmpire() {
     if (xp >= required) {
       setXp(xp - required);
       setLevel(level + 1);
-      createNotification(`🎉 LEVEL UP! You're now level ${level + 1}!`);
+      createNotification(`LEVEL UP! You're now level ${level + 1}!`);
       
       // Smaller level rewards
       const bonus = level * 50;
@@ -1066,7 +1066,7 @@ function UltimateCookieEmpire() {
             <span className="text-pink-400 font-bold">{playerName}</span>
           </div>
           <div className="text-red-400 text-sm mt-1">
-            💀 HARDCORE MODE • {criticalFails} Critical Fails
+            HARDCORE MODE • {criticalFails} Critical Fails
           </div>
         </div>
         
