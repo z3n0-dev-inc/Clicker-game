@@ -3195,7 +3195,7 @@ function UltimateCookieEmpire() {
               )}
               
               {/* Stats Tab */}
-              {ownerTab === 'stats' && (
+             {ownerTab === 'stats' && (
                 <div>
                   <h3 className="text-xl font-bold text-orange-400 mb-4" style={{ fontFamily: 'system-ui' }}>
                     📊 Analytics & Insights
@@ -3240,7 +3240,7 @@ function UltimateCookieEmpire() {
                             </span>
                             <span className="text-orange-400 font-bold" style={{ fontFamily: 'monospace' }}>
                               {formatNumber(player.totalCookiesEarned || 0)}
-                 </span>
+                            </span>
                           </div>
                         ))}
                     </div>
