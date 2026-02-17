@@ -498,6 +498,7 @@ function UltimateCookieEmpire() {
       { index: 9, condition: cookiesPerSecond >= 500000 },
       { index: 10, condition: prestige > 0 },
       { index: 11, condition: prestige >= 15 },
+      { index: 12, condition: false }, // Speed demon - checked separately
       { index: 13, condition: totalCookiesEarned >= 50000000 },
       { index: 14, condition: totalCookiesEarned >= 5000000000 },
       { index: 15, condition: criticalFails >= 25 },
@@ -506,7 +507,7 @@ function UltimateCookieEmpire() {
     ];
     
     checks.forEach(({ index, condition }) => {
-      if (!newAchievements[index].unlocked && condition) {
+      if (newAchievements[index] && !newAchievements[index].unlocked && condition) {
         newAchievements[index].unlocked = true;
         changed = true;
         const reward = newAchievements[index].reward;
@@ -527,7 +528,7 @@ function UltimateCookieEmpire() {
     const now = Date.now();
     clickTimeWindowRef.current = clickTimeWindowRef.current.filter(t => now - t < 10000);
     
-    if (clickTimeWindowRef.current.length >= 150 && !achievements[12].unlocked) {
+    if (clickTimeWindowRef.current.length >= 150 && achievements[12] && !achievements[12].unlocked) {
       const newAch = [...achievements];
       newAch[12].unlocked = true;
       setAchievements(newAch);
