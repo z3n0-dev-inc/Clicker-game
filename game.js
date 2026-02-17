@@ -202,6 +202,13 @@ function UltimateCookieEmpire() {
     { id: 40, name: 'Lucky Charm', desc: 'Reduce critical fail by 25%', cost: 100000, owned: 0, type: 'luck', reduction: 0.25, icon: '🍀', tier: 2, maxOwned: 1 },
     { id: 41, name: 'Blessed Amulet', desc: 'Reduce critical fail by 50%', cost: 2500000, owned: 0, type: 'luck', reduction: 0.5, icon: '✝️', tier: 3, maxOwned: 1 },
     { id: 42, name: 'Divine Protection', desc: 'Reduce critical fail by 75%', cost: 50000000, owned: 0, type: 'luck', reduction: 0.75, icon: '🛡️', tier: 4, maxOwned: 1 },
+    
+    // OWNER ONLY UPGRADES
+    { id: 200, name: 'Owner Authority', desc: '+1000000 cookies per click', cost: 1000000000000, owned: 0, type: 'click', bonus: 1000000, icon: '👑', tier: 8, ownerOnly: true },
+    { id: 201, name: 'Admin Power', desc: '+10000000 cookies per click', cost: 100000000000000, owned: 0, type: 'click', bonus: 10000000, icon: '⚡', tier: 9, ownerOnly: true },
+    { id: 202, name: 'God Mode Clicker', desc: '+100000000 cookies per click', cost: 10000000000000000, owned: 0, type: 'click', bonus: 100000000, icon: '✨', tier: 10, ownerOnly: true },
+    { id: 203, name: 'Owner Auto Farm', desc: '+100000000 cookies/sec', cost: 50000000000000, owned: 0, type: 'auto', cps: 100000000, icon: '🏭', tier: 8, ownerOnly: true },
+    { id: 204, name: 'Infinite Production', desc: 'x10 ALL click power', cost: 500000000000000, owned: 0, type: 'click_mult', multiplier: 10, icon: '♾️', tier: 10, maxOwned: 1, ownerOnly: true },
   ]);
   
   // Prestige upgrades
@@ -704,6 +711,11 @@ function UltimateCookieEmpire() {
         { id: 40, name: 'Lucky Charm', desc: 'Reduce critical fail by 25%', cost: 100000, owned: 0, type: 'luck', reduction: 0.25, icon: '🍀', tier: 2, maxOwned: 1 },
         { id: 41, name: 'Blessed Amulet', desc: 'Reduce critical fail by 50%', cost: 2500000, owned: 0, type: 'luck', reduction: 0.5, icon: '✝️', tier: 3, maxOwned: 1 },
         { id: 42, name: 'Divine Protection', desc: 'Reduce critical fail by 75%', cost: 50000000, owned: 0, type: 'luck', reduction: 0.75, icon: '🛡️', tier: 4, maxOwned: 1 },
+        { id: 200, name: 'Owner Authority', desc: '+1000000 cookies per click', cost: 1000000000000, owned: 0, type: 'click', bonus: 1000000, icon: '👑', tier: 8, ownerOnly: true },
+        { id: 201, name: 'Admin Power', desc: '+10000000 cookies per click', cost: 100000000000000, owned: 0, type: 'click', bonus: 10000000, icon: '⚡', tier: 9, ownerOnly: true },
+        { id: 202, name: 'God Mode Clicker', desc: '+100000000 cookies per click', cost: 10000000000000000, owned: 0, type: 'click', bonus: 100000000, icon: '✨', tier: 10, ownerOnly: true },
+        { id: 203, name: 'Owner Auto Farm', desc: '+100000000 cookies/sec', cost: 50000000000000, owned: 0, type: 'auto', cps: 100000000, icon: '🏭', tier: 8, ownerOnly: true },
+        { id: 204, name: 'Infinite Production', desc: 'x10 ALL click power', cost: 500000000000000, owned: 0, type: 'click_mult', multiplier: 10, icon: '♾️', tier: 10, maxOwned: 1, ownerOnly: true },
       ]);
       
       createNotification(`🌟 PRESTIGE ${prestige + 1}! +${tokensEarned} tokens`);
@@ -1266,7 +1278,10 @@ function UltimateCookieEmpire() {
               {/* Click upgrades */}
               {activeTab === 'click' && (
                 <div className="space-y-2">
-                  {upgrades && upgrades.filter(u => u.type === 'click' || u.type === 'click_mult' || u.type === 'efficiency' || u.type === 'luck').map(upgrade => {
+                  {upgrades && upgrades.filter(u => {
+                    if (u.ownerOnly && !isOwner) return false;
+                    return u.type === 'click' || u.type === 'click_mult' || u.type === 'efficiency' || u.type === 'luck';
+                  }).map(upgrade => {
                     const costReduction = prestigeUpgrades && prestigeUpgrades.find(pu => pu.id === 'p10' && pu.owned);
                     const finalCost = costReduction ? Math.floor(upgrade.cost * 0.8) : upgrade.cost;
                     const canAfford = cookies >= finalCost;
@@ -1316,7 +1331,10 @@ function UltimateCookieEmpire() {
               {/* Auto upgrades */}
               {activeTab === 'auto' && (
                 <div className="space-y-2">
-                  {upgrades && upgrades.filter(u => u.type === 'auto').map(upgrade => {
+                  {upgrades && upgrades.filter(u => {
+                    if (u.ownerOnly && !isOwner) return false;
+                    return u.type === 'auto';
+                  }).map(upgrade => {
                     const costReduction = prestigeUpgrades && prestigeUpgrades.find(pu => pu.id === 'p10' && pu.owned);
                     const finalCost = costReduction ? Math.floor(upgrade.cost * 0.8) : upgrade.cost;
                     const canAfford = cookies >= finalCost;
@@ -1684,81 +1702,140 @@ function UltimateCookieEmpire() {
               {/* Quick actions */}
               {ownerTab === 'quick' && (
                 <div className="space-y-6">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    <button
-                      onClick={() => setCookies(c => c + 1000000)}
-                      className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
-                      style={{ fontFamily: 'system-ui' }}
-                    >
-                      +1M Cookies
-                    </button>
-                    <button
-                      onClick={() => setCookies(c => c + 1000000000)}
-                      className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
-                      style={{ fontFamily: 'system-ui' }}
-                    >
-                      +1B Cookies
-                    </button>
-                    <button
-                      onClick={() => setLevel(100)}
-                      className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
-                      style={{ fontFamily: 'system-ui' }}
-                    >
-                      Level 100
-                    </button>
-                    <button
-                      onClick={() => setPrestige(50)}
-                      className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
-                      style={{ fontFamily: 'system-ui' }}
-                    >
-                      Prestige 50
-                    </button>
-                    <button
-                      onClick={() => setPrestigeTokens(9999)}
-                      className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
-                      style={{ fontFamily: 'system-ui' }}
-                    >
-                      9999 Tokens
-                    </button>
-                    <button
-                      onClick={() => setCookiesPerSecond(999999999)}
-                      className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
-                      style={{ fontFamily: 'system-ui' }}
-                    >
-                      Max CPS
-                    </button>
-                    <button
-                      onClick={() => setCookiesPerClick(999999999)}
-                      className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
-                      style={{ fontFamily: 'system-ui' }}
-                    >
-                      Max CPC
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (achievements) {
-                          setAchievements(ach => ach.map(a => ({ ...a, unlocked: true })));
-                        }
-                        createNotification('✓ All achievements');
-                      }}
-                      className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
-                      style={{ fontFamily: 'system-ui' }}
-                    >
-                      All Achievements
-                    </button>
-                    <button
-                      onClick={ownerGodMode}
-                      className="bg-yellow-600 hover:bg-yellow-500 px-4 py-3 rounded-lg font-bold text-sm transition-colors"
-                      style={{ fontFamily: 'system-ui' }}
-                    >
-                      👑 GOD MODE
-                    </button>
+                  {/* Personal cheats */}
+                  <div>
+                    <h3 className="text-lg font-bold text-orange-400 mb-3" style={{ fontFamily: 'system-ui' }}>
+                      Personal Cheats
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      <button
+                        onClick={() => setCookies(c => c + 1000000)}
+                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
+                        style={{ fontFamily: 'system-ui' }}
+                      >
+                        +1M Cookies
+                      </button>
+                      <button
+                        onClick={() => setCookies(c => c + 1000000000)}
+                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
+                        style={{ fontFamily: 'system-ui' }}
+                      >
+                        +1B Cookies
+                      </button>
+                      <button
+                        onClick={() => setCookies(c => c + 1000000000000)}
+                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
+                        style={{ fontFamily: 'system-ui' }}
+                      >
+                        +1T Cookies
+                      </button>
+                      <button
+                        onClick={() => setLevel(100)}
+                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
+                        style={{ fontFamily: 'system-ui' }}
+                      >
+                        Level 100
+                      </button>
+                      <button
+                        onClick={() => setLevel(500)}
+                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
+                        style={{ fontFamily: 'system-ui' }}
+                      >
+                        Level 500
+                      </button>
+                      <button
+                        onClick={() => setPrestige(50)}
+                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
+                        style={{ fontFamily: 'system-ui' }}
+                      >
+                        Prestige 50
+                      </button>
+                      <button
+                        onClick={() => setPrestige(100)}
+                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
+                        style={{ fontFamily: 'system-ui' }}
+                      >
+                        Prestige 100
+                      </button>
+                      <button
+                        onClick={() => setPrestigeTokens(9999)}
+                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
+                        style={{ fontFamily: 'system-ui' }}
+                      >
+                        9999 Tokens
+                      </button>
+                      <button
+                        onClick={() => setPrestigeTokens(99999)}
+                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
+                        style={{ fontFamily: 'system-ui' }}
+                      >
+                        99999 Tokens
+                      </button>
+                      <button
+                        onClick={() => setCookiesPerSecond(999999999)}
+                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
+                        style={{ fontFamily: 'system-ui' }}
+                      >
+                        Max CPS
+                      </button>
+                      <button
+                        onClick={() => setCookiesPerClick(999999999)}
+                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
+                        style={{ fontFamily: 'system-ui' }}
+                      >
+                        Max CPC
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (achievements) {
+                            setAchievements(ach => ach.map(a => ({ ...a, unlocked: true })));
+                          }
+                          createNotification('✓ All achievements');
+                        }}
+                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
+                        style={{ fontFamily: 'system-ui' }}
+                      >
+                        All Achievements
+                      </button>
+                      <button
+                        onClick={() => {
+                          setOwnedCosmetics({
+                            cookies: [...COSMETICS.cookies.map(c => c.id), ...OWNER_COSMETICS.cookies.map(c => c.id)],
+                            themes: [...COSMETICS.themes.map(t => t.id), ...OWNER_COSMETICS.themes.map(t => t.id)],
+                            effects: COSMETICS.effects.map(e => e.id),
+                            titles: COSMETICS.titles.map(t => t.id)
+                          });
+                          createNotification('✓ All cosmetics');
+                        }}
+                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
+                        style={{ fontFamily: 'system-ui' }}
+                      >
+                        All Cosmetics
+                      </button>
+                      <button
+                        onClick={() => {
+                          setCriticalFails(0);
+                          createNotification('✓ Reset critical fails');
+                        }}
+                        className="bg-orange-600 hover:bg-orange-500 px-4 py-3 rounded-lg font-medium text-sm transition-colors"
+                        style={{ fontFamily: 'system-ui' }}
+                      >
+                        Reset Crit Fails
+                      </button>
+                      <button
+                        onClick={ownerGodMode}
+                        className="bg-yellow-600 hover:bg-yellow-500 px-4 py-3 rounded-lg font-bold text-sm transition-colors col-span-2"
+                        style={{ fontFamily: 'system-ui' }}
+                      >
+                        👑 FULL GOD MODE
+                      </button>
+                    </div>
                   </div>
                   
                   {/* Current stats */}
                   <div className="bg-black/30 rounded-lg p-4 border border-gray-700">
                     <h3 className="text-lg font-bold text-white mb-3" style={{ fontFamily: 'system-ui' }}>
-                      Your Stats
+                      Your Current Stats
                     </h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm" style={{ fontFamily: 'monospace' }}>
                       <div>
@@ -1786,12 +1863,20 @@ function UltimateCookieEmpire() {
                         <div className="text-white font-bold">{prestigeTokens}</div>
                       </div>
                       <div>
-                        <div className="text-gray-400">Total</div>
+                        <div className="text-gray-400">Total Earned</div>
                         <div className="text-white font-bold">{formatNumber(totalCookiesEarned)}</div>
                       </div>
                       <div>
-                        <div className="text-gray-400">Clicks</div>
+                        <div className="text-gray-400">Total Clicks</div>
                         <div className="text-white font-bold">{formatNumber(totalClicks)}</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-400">Crit Fails</div>
+                        <div className="text-white font-bold">{criticalFails}</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-400">Multiplier</div>
+                        <div className="text-white font-bold">x{getPrestigeMultiplier().toFixed(2)}</div>
                       </div>
                     </div>
                   </div>
@@ -1819,7 +1904,7 @@ function UltimateCookieEmpire() {
                     </button>
                   </div>
                   
-                  <div className="space-y-2 max-h-96 overflow-y-auto">
+                  <div className="space-y-2 max-h-[500px] overflow-y-auto">
                     {filteredPlayers.map(player => (
                       <div key={player.playerId} className="bg-black/30 rounded-lg p-4 border border-gray-700">
                         <div className="flex justify-between items-start mb-3">
@@ -1847,6 +1932,14 @@ function UltimateCookieEmpire() {
                                 <span className="text-white ml-2">{formatNumber(player.cookies || 0)}</span>
                               </div>
                               <div>
+                                <span className="text-gray-400">CPC:</span>
+                                <span className="text-white ml-2">{formatNumber(player.cookiesPerClick || 1)}</span>
+                              </div>
+                              <div>
+                                <span className="text-gray-400">CPS:</span>
+                                <span className="text-white ml-2">{formatNumber(player.cookiesPerSecond || 0)}</span>
+                              </div>
+                              <div>
                                 <span className="text-gray-400">Level:</span>
                                 <span className="text-white ml-2">{player.level || 0}</span>
                               </div>
@@ -1860,20 +1953,241 @@ function UltimateCookieEmpire() {
                               </div>
                             </div>
                             
+                            {/* Give cookies/stats */}
+                            <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-600">
+                              <h4 className="text-sm font-bold text-orange-400 mb-2" style={{ fontFamily: 'system-ui' }}>
+                                Give Resources
+                              </h4>
+                              <div className="grid grid-cols-2 gap-2">
+                                <button
+                                  onClick={async () => {
+                                    const amount = prompt('Give how many cookies?');
+                                    if (amount && !isNaN(amount)) {
+                                      const result = await api.updatePlayer(player.playerId, {
+                                        cookies: (player.cookies || 0) + parseInt(amount)
+                                      });
+                                      if (result.success) {
+                                        createNotification(`✓ Gave ${formatNumber(parseInt(amount))} cookies`);
+                                        loadAllPlayers();
+                                      }
+                                    }
+                                  }}
+                                  className="bg-green-600 hover:bg-green-500 px-3 py-2 rounded-lg font-medium text-xs"
+                                  style={{ fontFamily: 'system-ui' }}
+                                >
+                                  💰 Give Cookies
+                                </button>
+                                <button
+                                  onClick={async () => {
+                                    const amount = prompt('Set CPC to?');
+                                    if (amount && !isNaN(amount)) {
+                                      const result = await api.updatePlayer(player.playerId, {
+                                        cookiesPerClick: parseInt(amount)
+                                      });
+                                      if (result.success) {
+                                        createNotification(`✓ Set CPC to ${formatNumber(parseInt(amount))}`);
+                                        loadAllPlayers();
+                                      }
+                                    }
+                                  }}
+                                  className="bg-blue-600 hover:bg-blue-500 px-3 py-2 rounded-lg font-medium text-xs"
+                                  style={{ fontFamily: 'system-ui' }}
+                                >
+                                  ⚡ Set CPC
+                                </button>
+                                <button
+                                  onClick={async () => {
+                                    const amount = prompt('Set CPS to?');
+                                    if (amount && !isNaN(amount)) {
+                                      const result = await api.updatePlayer(player.playerId, {
+                                        cookiesPerSecond: parseInt(amount)
+                                      });
+                                      if (result.success) {
+                                        createNotification(`✓ Set CPS to ${formatNumber(parseInt(amount))}`);
+                                        loadAllPlayers();
+                                      }
+                                    }
+                                  }}
+                                  className="bg-blue-600 hover:bg-blue-500 px-3 py-2 rounded-lg font-medium text-xs"
+                                  style={{ fontFamily: 'system-ui' }}
+                                >
+                                  🔥 Set CPS
+                                </button>
+                                <button
+                                  onClick={async () => {
+                                    const level = prompt('Set level to?');
+                                    if (level && !isNaN(level)) {
+                                      const result = await api.updatePlayer(player.playerId, {
+                                        level: parseInt(level)
+                                      });
+                                      if (result.success) {
+                                        createNotification(`✓ Set level to ${level}`);
+                                        loadAllPlayers();
+                                      }
+                                    }
+                                  }}
+                                  className="bg-purple-600 hover:bg-purple-500 px-3 py-2 rounded-lg font-medium text-xs"
+                                  style={{ fontFamily: 'system-ui' }}
+                                >
+                                  ⭐ Set Level
+                                </button>
+                                <button
+                                  onClick={async () => {
+                                    const tokens = prompt('Give how many prestige tokens?');
+                                    if (tokens && !isNaN(tokens)) {
+                                      const result = await api.updatePlayer(player.playerId, {
+                                        prestigeTokens: (player.prestigeTokens || 0) + parseInt(tokens)
+                                      });
+                                      if (result.success) {
+                                        createNotification(`✓ Gave ${tokens} tokens`);
+                                        loadAllPlayers();
+                                      }
+                                    }
+                                  }}
+                                  className="bg-yellow-600 hover:bg-yellow-500 px-3 py-2 rounded-lg font-medium text-xs"
+                                  style={{ fontFamily: 'system-ui' }}
+                                >
+                                  🌟 Give Tokens
+                                </button>
+                              </div>
+                            </div>
+                            
+                            {/* Give cosmetics */}
+                            <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-600">
+                              <h4 className="text-sm font-bold text-orange-400 mb-2" style={{ fontFamily: 'system-ui' }}>
+                                Give Cosmetics
+                              </h4>
+                              <div className="grid grid-cols-2 gap-2">
+                                <button
+                                  onClick={async () => {
+                                    const cookieId = prompt(`Available cookies:\n${COSMETICS.cookies.map(c => c.id).join(', ')}\n\nEnter cookie ID:`);
+                                    if (cookieId && COSMETICS.cookies.find(c => c.id === cookieId)) {
+                                      const currentOwned = player.ownedCosmetics?.cookies || ['default'];
+                                      if (!currentOwned.includes(cookieId)) {
+                                        const result = await api.updatePlayer(player.playerId, {
+                                          'ownedCosmetics.cookies': [...currentOwned, cookieId]
+                                        });
+                                        if (result.success) {
+                                          createNotification(`✓ Gave cookie: ${cookieId}`);
+                                          loadAllPlayers();
+                                        }
+                                      } else {
+                                        createNotification('Already owns this');
+                                      }
+                                    }
+                                  }}
+                                  className="bg-pink-600 hover:bg-pink-500 px-3 py-2 rounded-lg font-medium text-xs"
+                                  style={{ fontFamily: 'system-ui' }}
+                                >
+                                  🍪 Cookie Skin
+                                </button>
+                                <button
+                                  onClick={async () => {
+                                    const themeId = prompt(`Available themes:\n${COSMETICS.themes.map(t => t.id).join(', ')}\n\nEnter theme ID:`);
+                                    if (themeId && COSMETICS.themes.find(t => t.id === themeId)) {
+                                      const currentOwned = player.ownedCosmetics?.themes || ['default'];
+                                      if (!currentOwned.includes(themeId)) {
+                                        const result = await api.updatePlayer(player.playerId, {
+                                          'ownedCosmetics.themes': [...currentOwned, themeId]
+                                        });
+                                        if (result.success) {
+                                          createNotification(`✓ Gave theme: ${themeId}`);
+                                          loadAllPlayers();
+                                        }
+                                      } else {
+                                        createNotification('Already owns this');
+                                      }
+                                    }
+                                  }}
+                                  className="bg-pink-600 hover:bg-pink-500 px-3 py-2 rounded-lg font-medium text-xs"
+                                  style={{ fontFamily: 'system-ui' }}
+                                >
+                                  🎨 Theme
+                                </button>
+                                <button
+                                  onClick={async () => {
+                                    const effectId = prompt(`Available effects:\n${COSMETICS.effects.map(e => e.id).join(', ')}\n\nEnter effect ID:`);
+                                    if (effectId && COSMETICS.effects.find(e => e.id === effectId)) {
+                                      const currentOwned = player.ownedCosmetics?.effects || ['none'];
+                                      if (!currentOwned.includes(effectId)) {
+                                        const result = await api.updatePlayer(player.playerId, {
+                                          'ownedCosmetics.effects': [...currentOwned, effectId]
+                                        });
+                                        if (result.success) {
+                                          createNotification(`✓ Gave effect: ${effectId}`);
+                                          loadAllPlayers();
+                                        }
+                                      } else {
+                                        createNotification('Already owns this');
+                                      }
+                                    }
+                                  }}
+                                  className="bg-pink-600 hover:bg-pink-500 px-3 py-2 rounded-lg font-medium text-xs"
+                                  style={{ fontFamily: 'system-ui' }}
+                                >
+                                  ✨ Effect
+                                </button>
+                                <button
+                                  onClick={async () => {
+                                    const titleId = prompt(`Available titles:\n${COSMETICS.titles.map(t => t.id).join(', ')}\n\nEnter title ID:`);
+                                    if (titleId && COSMETICS.titles.find(t => t.id === titleId)) {
+                                      const currentOwned = player.ownedCosmetics?.titles || ['none'];
+                                      if (!currentOwned.includes(titleId)) {
+                                        const result = await api.updatePlayer(player.playerId, {
+                                          'ownedCosmetics.titles': [...currentOwned, titleId]
+                                        });
+                                        if (result.success) {
+                                          createNotification(`✓ Gave title: ${titleId}`);
+                                          loadAllPlayers();
+                                        }
+                                      } else {
+                                        createNotification('Already owns this');
+                                      }
+                                    }
+                                  }}
+                                  className="bg-pink-600 hover:bg-pink-500 px-3 py-2 rounded-lg font-medium text-xs"
+                                  style={{ fontFamily: 'system-ui' }}
+                                >
+                                  👑 Title
+                                </button>
+                                <button
+                                  onClick={async () => {
+                                    const result = await api.updatePlayer(player.playerId, {
+                                      ownedCosmetics: {
+                                        cookies: COSMETICS.cookies.map(c => c.id),
+                                        themes: COSMETICS.themes.map(t => t.id),
+                                        effects: COSMETICS.effects.map(e => e.id),
+                                        titles: COSMETICS.titles.map(t => t.id)
+                                      }
+                                    });
+                                    if (result.success) {
+                                      createNotification(`✓ Gave ALL cosmetics`);
+                                      loadAllPlayers();
+                                    }
+                                  }}
+                                  className="bg-purple-600 hover:bg-purple-500 px-3 py-2 rounded-lg font-medium text-xs col-span-2"
+                                  style={{ fontFamily: 'system-ui' }}
+                                >
+                                  🎁 Give ALL Cosmetics
+                                </button>
+                              </div>
+                            </div>
+                            
+                            {/* Danger zone */}
                             <div className="grid grid-cols-2 gap-2">
                               <button
                                 onClick={() => ownerResetPlayerEconomy(player.playerId)}
                                 className="bg-red-600 hover:bg-red-500 px-3 py-2 rounded-lg font-medium text-xs"
                                 style={{ fontFamily: 'system-ui' }}
                               >
-                                Reset Economy
+                                ⚠️ Reset Economy
                               </button>
                               <button
                                 onClick={() => ownerDeletePlayer(player.playerId)}
                                 className="bg-red-800 hover:bg-red-700 px-3 py-2 rounded-lg font-medium text-xs"
                                 style={{ fontFamily: 'system-ui' }}
                               >
-                                Delete Player
+                                🗑️ Delete Player
                               </button>
                             </div>
                           </div>
