@@ -3240,21 +3240,17 @@ function UltimateCookieEmpire() {
                             </span>
                             <span className="text-orange-400 font-bold" style={{ fontFamily: 'monospace' }}>
                               {formatNumber(player.totalCookiesEarned || 0)}
-                      // Add the opening tag <> right before the first line of this block
-      <>
-                          </span>
-                        </div>
-                      ))}
+                    </span>
+                          </div>
+                        ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </> // Add the closing tag </> right before the })
-  )}
-      
+      )}
       {/* MODERATOR PANEL */}
       {isModerator && modPanelOpen && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 overflow-y-auto p-4" onClick={() => setModPanelOpen(false)}>
