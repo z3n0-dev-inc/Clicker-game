@@ -3240,17 +3240,13 @@ function UltimateCookieEmpire() {
                             </span>
                             <span className="text-orange-400 font-bold" style={{ fontFamily: 'monospace' }}>
                               {formatNumber(player.totalCookiesEarned || 0)}
-                    </span>
+                 </span>
                           </div>
                         ))}
                     </div>
                   </div>
                 </div>
               )}
-            </div>
-          </div>
-        </div>
-      )}
       {/* MODERATOR PANEL */}
       {isModerator && modPanelOpen && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 overflow-y-auto p-4" onClick={() => setModPanelOpen(false)}>
