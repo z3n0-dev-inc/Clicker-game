@@ -348,6 +348,8 @@ function UltimateCookieEmpire() {
     { id: 205, name: 'Reality Control', desc: 'x100 ALL production', cost: 1000000000000000, owned: 0, type: 'click_mult', multiplier: 100, icon: '🌀', tier: 11, maxOwned: 1, ownerOnly: true },
     { id: 206, name: 'Cosmic Dominance', desc: '+1B cookies/sec', cost: 10000000000000000, owned: 0, type: 'auto', cps: 1000000000, icon: '🌌', tier: 11, ownerOnly: true },
   ]);
+    const [showTutorial, setShowTutorial] = useState(false);
+
   
   // Prestige upgrades
   const [prestigeUpgrades, setPrestigeUpgrades] = useState([
