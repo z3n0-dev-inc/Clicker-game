@@ -3240,17 +3240,20 @@ function UltimateCookieEmpire() {
                             </span>
                             <span className="text-orange-400 font-bold" style={{ fontFamily: 'monospace' }}>
                               {formatNumber(player.totalCookiesEarned || 0)}
-                            </span>
-                          </div>
-                        ))}
-                    </div>
+                      // Add the opening tag <> right before the first line of this block
+      <>
+                          </span>
+                        </div>
+                      ))}
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
-      )}
+      </div>
+    </> // Add the closing tag </> right before the })
+  )}
       
       {/* MODERATOR PANEL */}
       {isModerator && modPanelOpen && (
