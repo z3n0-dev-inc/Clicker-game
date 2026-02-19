@@ -1,24 +1,40 @@
-// This "installs" PlayFab dynamically without touching your HTML file
-const script = document.createElement('script');
-script.src = "https://download.playfab.com";
-script.onload = () => {
-    console.log("PlayFab Backend Ready!");
-    
-    // Initialize with your Title ID from PlayFab Game Manager
+// 1. DYNAMIC INSTALL: This pulls the backend into your game automatically
+const pfScript = document.createElement('script');
+pfScript.src = "https://download.playfab.com";
+pfScript.onload = () => {
+    // 2. CONNECT: Links your game to your PlayFab project
     PlayFab.settings.titleId = "10EF13"; 
 
-    // Auto-login for mobile users
+    // 3. LOGIN: Creates a free cloud account for the player
     const loginRequest = {
         TitleId: PlayFab.settings.titleId,
-        CustomId: "ClickerPlayer_" + Math.random().toString(36).substring(7),
+        CustomId: "ClickerUser_" + Math.random().toString(36).substring(7),
         CreateAccount: true
     };
 
-    PlayFabClientSDK.LoginWithCustomID(loginRequest, (result, error) => {
-        if (result) console.log("Logged in to Cloud Backend!");
+    PlayFabClientSDK.LoginWithCustomID(loginRequest, (result) => {
+        if (result) {
+            console.log("Logged in! PlayFab ID:", result.data.PlayFabId);
+            
+            // 4. LOAD DATA: Automatically gets their saved cookies
+            PlayFabClientSDK.GetPlayerStatistics({ StatisticNames: ["TotalCookies"] }, (res) => {
+                if (res.data.Statistics.length > 0) {
+                    const savedVal = res.data.Statistics[0].Value;
+                    console.log("Found your cookies in the cloud:", savedVal);
+                    // Update your game's cookie variable here!
+                }
+            });
+        }
     });
 };
-document.body.appendChild(script);
+document.body.appendChild(pfScript);
+
+// 5. SAVE DATA: Call this function whenever you want to save progress
+function saveMyProgress(cookieCount) {
+    const update = { Statistics: [{ StatisticName: "TotalCookies", Value: cookieCount }] };
+    PlayFabClientSDK.UpdatePlayerStatistics(update, () => console.log("Progress Saved!"));
+}
+
 
 const { useState, useEffect, useRef, useCallback, useMemo } = React;
 
@@ -3058,3 +3074,13 @@ function UltimateCookieEmpire() {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<UltimateCookieEmpire />);
+// 5. SAVE DATA: Call this function when the player clicks or closes the game
+function saveProgress(cookieCount) {
+    const update = { 
+        Statistics: [{ StatisticName: "TotalCookies", Value: cookieCount }] 
+    };
+    
+    PlayFabClientSDK.UpdatePlayerStatistics(update, (result, error) => {
+        if (result) console.log("Progress saved to the cloud!");
+    });
+}
