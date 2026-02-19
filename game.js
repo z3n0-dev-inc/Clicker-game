@@ -1,4 +1,27 @@
+// This "installs" PlayFab dynamically without touching your HTML file
+const script = document.createElement('script');
+script.src = "https://download.playfab.com";
+script.onload = () => {
+    console.log("PlayFab Backend Ready!");
+    
+    // Initialize with your Title ID from PlayFab Game Manager
+    PlayFab.settings.titleId = "10EF13"; 
+
+    // Auto-login for mobile users
+    const loginRequest = {
+        TitleId: PlayFab.settings.titleId,
+        CustomId: "ClickerPlayer_" + Math.random().toString(36).substring(7),
+        CreateAccount: true
+    };
+
+    PlayFabClientSDK.LoginWithCustomID(loginRequest, (result, error) => {
+        if (result) console.log("Logged in to Cloud Backend!");
+    });
+};
+document.body.appendChild(script);
+
 const { useState, useEffect, useRef, useCallback, useMemo } = React;
+
 
 // ═══════════════════════════════════════════
 // CONFIG
